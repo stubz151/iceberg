@@ -45,6 +45,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.PartitionMetadata;
 import software.amazon.awssdk.regions.Region;
@@ -87,6 +88,7 @@ public class TestS3FileIOIntegration {
   private static int deletionBatchSize;
   private String objectKey;
   private String objectUri;
+  private final static String expressBucketSuffix = "x-s3";
 
   @BeforeAll
   public static void beforeClass() {
@@ -100,7 +102,9 @@ public class TestS3FileIOIntegration {
     crossRegionBucketName = AwsIntegTestUtil.testCrossRegionBucketName();
     accessPointName = UUID.randomUUID().toString();
     crossRegionAccessPointName = UUID.randomUUID().toString();
-    prefix = UUID.randomUUID().toString();
+
+    // adding a backslash here to cater for s3Express support.
+    prefix = UUID.randomUUID() + "/";
     contentBytes = new byte[1024 * 1024 * 10];
     deletionBatchSize = 3;
     content = new String(contentBytes, StandardCharsets.UTF_8);
@@ -109,12 +113,14 @@ public class TestS3FileIOIntegration {
     AwsIntegTestUtil.createAccessPoint(s3Control, accessPointName, bucketName);
     AwsIntegTestUtil.createAccessPoint(
         crossRegionS3Control, crossRegionAccessPointName, crossRegionBucketName);
-    s3.putBucketVersioning(
-        PutBucketVersioningRequest.builder()
-            .bucket(bucketName)
-            .versioningConfiguration(
-                VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
-            .build());
+    if (!checkIfS3Express()) {
+      s3.putBucketVersioning(
+              PutBucketVersioningRequest.builder()
+                      .bucket(bucketName)
+                      .versioningConfiguration(
+                              VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
+                      .build());
+    }
   }
 
   @AfterAll
@@ -167,6 +173,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testNewInputStreamWithAccessPoint() throws Exception {
     s3.putObject(
         PutObjectRequest.builder().bucket(bucketName).key(objectKey).build(),
@@ -180,6 +187,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testNewInputStreamWithCrossRegionAccessPoint() throws Exception {
     clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
     S3Client s3Client = clientFactory.s3();
@@ -214,6 +222,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testNewOutputStreamWithAccessPoint() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
     s3FileIO.initialize(
@@ -229,6 +238,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testNewOutputStreamWithCrossRegionAccessPoint() throws Exception {
     clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
     S3Client s3Client = clientFactory.s3();
@@ -265,6 +275,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testServerSideKmsEncryption() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setSseType(S3FileIOProperties.SSE_TYPE_KMS);
@@ -280,6 +291,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testServerSideKmsEncryptionWithDefaultKey() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setSseType(S3FileIOProperties.SSE_TYPE_KMS);
@@ -301,6 +313,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testDualLayerServerSideKmsEncryption() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setSseType(S3FileIOProperties.DSSE_TYPE_KMS);
@@ -316,6 +329,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testServerSideCustomEncryption() throws Exception {
     // generate key
     KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -351,6 +365,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testACL() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setAcl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL);
@@ -382,16 +397,18 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testDeleteFilesMultipleBatchesWithAccessPoints() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, getDeletionTestProperties());
     s3FileIO.initialize(
-        ImmutableMap.of(
-            S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
-            testAccessPointARN(AwsIntegTestUtil.testRegion(), accessPointName)));
+            ImmutableMap.of(
+                    S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
+                    testAccessPointARN(AwsIntegTestUtil.testRegion(), accessPointName)));
     testDeleteFiles(deletionBatchSize * 2, s3FileIO);
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testDeleteFilesMultipleBatchesWithCrossRegionAccessPoints() throws Exception {
     clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, getDeletionTestProperties());
@@ -419,7 +436,7 @@ public class TestS3FileIOIntegration {
   public void testPrefixList() {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
     List<Integer> scaleSizes = Lists.newArrayList(1, 1000, 2500);
-    String listPrefix = String.format("s3://%s/%s/%s", bucketName, prefix, "prefix-list-test");
+    String listPrefix = String.format("s3://%s/%s/%s", bucketName, "prefix-list-test", prefix);
 
     scaleSizes
         .parallelStream()
@@ -455,6 +472,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testFileRecoveryHappyPath() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, new S3FileIOProperties());
     String filePath = String.format("s3://%s/%s/%s", bucketName, prefix, "someFile.parquet");
@@ -467,6 +485,7 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  @DisabledIf("checkIfS3Express")
   public void testFileRecoveryFailsToRecover() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, new S3FileIOProperties());
     s3.putBucketVersioning(
@@ -542,5 +561,13 @@ public class TestS3FileIOIntegration {
                 s3.putObject(
                     builder -> builder.bucket(s3URI.bucket()).key(s3URI.key() + i).build(),
                     RequestBody.empty()));
+  }
+
+  /**
+   * A helper method that checks if the s3 bucket is a general purpose bucket or directory bucket based on the suffix.
+   * @return true if it is an express bucket, otherwise false
+   */
+  private static boolean checkIfS3Express() {
+    return bucketName.endsWith(expressBucketSuffix);
   }
 }
