@@ -18,8 +18,12 @@
  */
 package org.apache.iceberg.aws.s3;
 
+
+import org.apache.iceberg.aws.AwsIntegTestUtil;
+
 public class S3TestUtil {
 
+  private static final String EXPRESS_BUCKET_SUFFIX = "--x-s3";
   private S3TestUtil() {}
 
   public static String getBucketFromUri(String s3Uri) {
@@ -28,5 +32,13 @@ public class S3TestUtil {
 
   public static String getKeyFromUri(String s3Uri) {
     return new S3URI(s3Uri).key();
+  }
+
+  /**
+   * A helper method that checks if the s3 bucket is a general purpose bucket or directory bucket based on the suffix.
+   * @return true if it is an s3 express bucket otherwise false.
+   */
+  public static boolean checkIfS3Express() {
+    return AwsIntegTestUtil.testBucketName().endsWith(EXPRESS_BUCKET_SUFFIX);
   }
 }

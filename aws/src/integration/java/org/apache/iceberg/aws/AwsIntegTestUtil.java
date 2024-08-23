@@ -32,9 +32,11 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.ObjectVersion;
 import software.amazon.awssdk.services.s3.paginators.ListObjectVersionsIterable;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 import software.amazon.awssdk.services.s3control.S3ControlClient;
 import software.amazon.awssdk.services.s3control.model.CreateAccessPointRequest;
 import software.amazon.awssdk.services.s3control.model.DeleteAccessPointRequest;
@@ -42,6 +44,7 @@ import software.amazon.awssdk.services.s3control.model.DeleteAccessPointRequest;
 public class AwsIntegTestUtil {
 
   private static final Logger LOG = LoggerFactory.getLogger(AwsIntegTestUtil.class);
+  private static final int BATCH_DELETION_SIZE = 1000;
 
   private AwsIntegTestUtil() {}
 
@@ -95,17 +98,16 @@ public class AwsIntegTestUtil {
     return System.getenv("AWS_TEST_ACCOUNT_ID");
   }
 
-  public static void cleanS3Bucket(S3Client s3, String bucketName, String prefix) {
+  public static void cleanS3GeneralBucket(S3Client s3, String bucketName, String prefix) {
     ListObjectVersionsIterable response =
         s3.listObjectVersionsPaginator(
             ListObjectVersionsRequest.builder().bucket(bucketName).prefix(prefix).build());
     List<ObjectVersion> versionsToDelete = Lists.newArrayList();
-    int batchDeletionSize = 1000;
     response.versions().stream()
         .forEach(
             version -> {
               versionsToDelete.add(version);
-              if (versionsToDelete.size() == batchDeletionSize) {
+              if (versionsToDelete.size() == BATCH_DELETION_SIZE) {
                 deleteObjectVersions(s3, bucketName, versionsToDelete);
                 versionsToDelete.clear();
               }
@@ -114,6 +116,39 @@ public class AwsIntegTestUtil {
     if (!versionsToDelete.isEmpty()) {
       deleteObjectVersions(s3, bucketName, versionsToDelete);
     }
+  }
+
+  public static void cleanS3ExpressBucket(S3Client s3, String bucketName, String prefix) {
+    // For S3 express we just need to delete the objects not the versions.
+    ListObjectsV2Request listRequest =
+        ListObjectsV2Request.builder()
+            .bucket(bucketName)
+            .prefix(prefix)
+            .build();
+
+    ListObjectsV2Iterable paginatedListResponse = s3.listObjectsV2Paginator(listRequest);
+    List<ObjectIdentifier> objectsToDelete = Lists.newArrayList();
+    paginatedListResponse.contents().stream()
+        .forEach(s3Object -> {
+          if (objectsToDelete.size() == BATCH_DELETION_SIZE) {
+            deleteObjects(s3, bucketName, objectsToDelete);
+            objectsToDelete.clear();
+          }
+          objectsToDelete.add(ObjectIdentifier.builder()
+              .key(s3Object.key())
+              .build());
+        });
+
+    if (!objectsToDelete.isEmpty()) {
+      deleteObjects(s3, bucketName, objectsToDelete);
+    }
+  }
+
+  private static void deleteObjects(S3Client s3, String bucketName, List<ObjectIdentifier> objectsToDelete) {
+    s3.deleteObjects(DeleteObjectsRequest.builder()
+      .bucket(bucketName)
+      .delete(Delete.builder().objects(objectsToDelete).build())
+      .build());
   }
 
   private static void deleteObjectVersions(

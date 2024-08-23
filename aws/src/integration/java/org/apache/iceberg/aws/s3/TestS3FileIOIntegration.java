@@ -88,7 +88,6 @@ public class TestS3FileIOIntegration {
   private static int deletionBatchSize;
   private String objectKey;
   private String objectUri;
-  private final static String expressBucketSuffix = "x-s3";
 
   @BeforeAll
   public static void beforeClass() {
@@ -103,7 +102,7 @@ public class TestS3FileIOIntegration {
     accessPointName = UUID.randomUUID().toString();
     crossRegionAccessPointName = UUID.randomUUID().toString();
 
-    // adding a backslash here to cater for s3Express support.
+    // Adding a backslash here to cater for s3Express list requests which must end in a backslash.
     prefix = UUID.randomUUID() + "/";
     contentBytes = new byte[1024 * 1024 * 10];
     deletionBatchSize = 3;
@@ -113,19 +112,23 @@ public class TestS3FileIOIntegration {
     AwsIntegTestUtil.createAccessPoint(s3Control, accessPointName, bucketName);
     AwsIntegTestUtil.createAccessPoint(
         crossRegionS3Control, crossRegionAccessPointName, crossRegionBucketName);
-    if (!checkIfS3Express()) {
+    if (!S3TestUtil.checkIfS3Express()) {
       s3.putBucketVersioning(
-              PutBucketVersioningRequest.builder()
-                      .bucket(bucketName)
-                      .versioningConfiguration(
-                              VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
-                      .build());
+          PutBucketVersioningRequest.builder()
+              .bucket(bucketName)
+              .versioningConfiguration(
+                      VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
+              .build());
     }
   }
 
   @AfterAll
   public static void afterClass() {
-    AwsIntegTestUtil.cleanS3Bucket(s3, bucketName, prefix);
+    if (S3TestUtil.checkIfS3Express()){
+      AwsIntegTestUtil.cleanS3ExpressBucket(s3, bucketName, prefix);
+    } else {
+      AwsIntegTestUtil.cleanS3GeneralBucket(s3, bucketName, prefix);
+    }
     AwsIntegTestUtil.deleteAccessPoint(s3Control, accessPointName);
     AwsIntegTestUtil.deleteAccessPoint(crossRegionS3Control, crossRegionAccessPointName);
     kms.scheduleKeyDeletion(
@@ -173,7 +176,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support Access Points currently")
   public void testNewInputStreamWithAccessPoint() throws Exception {
     s3.putObject(
         PutObjectRequest.builder().bucket(bucketName).key(objectKey).build(),
@@ -187,7 +191,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support Access Points currently")
   public void testNewInputStreamWithCrossRegionAccessPoint() throws Exception {
     clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
     S3Client s3Client = clientFactory.s3();
@@ -222,7 +227,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support Access Points currently")
   public void testNewOutputStreamWithAccessPoint() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
     s3FileIO.initialize(
@@ -238,7 +244,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support Access Points currently")
   public void testNewOutputStreamWithCrossRegionAccessPoint() throws Exception {
     clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
     S3Client s3Client = clientFactory.s3();
@@ -275,7 +282,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support KMS/custom encryption")
   public void testServerSideKmsEncryption() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setSseType(S3FileIOProperties.SSE_TYPE_KMS);
@@ -291,7 +299,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support KMS/custom encryption")
   public void testServerSideKmsEncryptionWithDefaultKey() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setSseType(S3FileIOProperties.SSE_TYPE_KMS);
@@ -313,7 +322,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support KMS/custom encryption")
   public void testDualLayerServerSideKmsEncryption() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setSseType(S3FileIOProperties.DSSE_TYPE_KMS);
@@ -329,7 +339,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support KMS/custom encryption")
   public void testServerSideCustomEncryption() throws Exception {
     // generate key
     KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -365,7 +376,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "File ACLs aren’t supported by S3 Express")
   public void testACL() throws Exception {
     S3FileIOProperties properties = new S3FileIOProperties();
     properties.setAcl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL);
@@ -397,18 +409,20 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support Access Points currently")
   public void testDeleteFilesMultipleBatchesWithAccessPoints() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, getDeletionTestProperties());
     s3FileIO.initialize(
-            ImmutableMap.of(
-                    S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
-                    testAccessPointARN(AwsIntegTestUtil.testRegion(), accessPointName)));
+        ImmutableMap.of(
+            S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
+            testAccessPointARN(AwsIntegTestUtil.testRegion(), accessPointName)));
     testDeleteFiles(deletionBatchSize * 2, s3FileIO);
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support Access Points currently")
   public void testDeleteFilesMultipleBatchesWithCrossRegionAccessPoints() throws Exception {
     clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, getDeletionTestProperties());
@@ -436,7 +450,7 @@ public class TestS3FileIOIntegration {
   public void testPrefixList() {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
     List<Integer> scaleSizes = Lists.newArrayList(1, 1000, 2500);
-    String listPrefix = String.format("s3://%s/%s/%s", bucketName, "prefix-list-test", prefix);
+    String listPrefix = String.format("s3://%s/%s/%s", bucketName, prefix, "prefix-list-test/");
 
     scaleSizes
         .parallelStream()
@@ -472,7 +486,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support versioning")
   public void testFileRecoveryHappyPath() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, new S3FileIOProperties());
     String filePath = String.format("s3://%s/%s/%s", bucketName, prefix, "someFile.parquet");
@@ -485,7 +500,8 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
-  @DisabledIf("checkIfS3Express")
+  @DisabledIf(value = "org.apache.iceberg.aws.s3.S3TestUtil#checkIfS3Express",
+          disabledReason = "S3 Express doesn’t support versioning")
   public void testFileRecoveryFailsToRecover() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3, new S3FileIOProperties());
     s3.putBucketVersioning(
@@ -561,13 +577,5 @@ public class TestS3FileIOIntegration {
                 s3.putObject(
                     builder -> builder.bucket(s3URI.bucket()).key(s3URI.key() + i).build(),
                     RequestBody.empty()));
-  }
-
-  /**
-   * A helper method that checks if the s3 bucket is a general purpose bucket or directory bucket based on the suffix.
-   * @return true if it is an express bucket, otherwise false
-   */
-  private static boolean checkIfS3Express() {
-    return bucketName.endsWith(expressBucketSuffix);
   }
 }
