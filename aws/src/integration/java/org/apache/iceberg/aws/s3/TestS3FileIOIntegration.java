@@ -41,6 +41,7 @@ import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.OutputFile;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
+import org.assertj.core.api.Assumptions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,11 +77,13 @@ public class TestS3FileIOIntegration {
   private static S3Client s3;
   private static S3ControlClient s3Control;
   private static S3ControlClient crossRegionS3Control;
+  private static S3ControlClient multiRegionS3Control;
   private static KmsClient kms;
   private static String bucketName;
   private static String crossRegionBucketName;
   private static String accessPointName;
   private static String crossRegionAccessPointName;
+  private static String multiRegionAccessPointAlias;
   private static String prefix;
   private static byte[] contentBytes;
   private static String content;
@@ -101,9 +104,7 @@ public class TestS3FileIOIntegration {
     crossRegionBucketName = AwsIntegTestUtil.testCrossRegionBucketName();
     accessPointName = UUID.randomUUID().toString();
     crossRegionAccessPointName = UUID.randomUUID().toString();
-
-    // Adding a backslash here to cater for s3Express list requests which must end in a backslash.
-    prefix = UUID.randomUUID() + "/";
+    prefix = UUID.randomUUID().toString();
     contentBytes = new byte[1024 * 1024 * 10];
     deletionBatchSize = 3;
     content = new String(contentBytes, StandardCharsets.UTF_8);
@@ -120,6 +121,7 @@ public class TestS3FileIOIntegration {
                       VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
               .build());
     }
+    multiRegionAccessPointAlias = AwsIntegTestUtil.testMultiRegionAccessPointAlias();
   }
 
   @AfterAll
@@ -216,6 +218,23 @@ public class TestS3FileIOIntegration {
   }
 
   @Test
+  public void testNewInputStreamWithMultiRegionAccessPoint() throws Exception {
+    Assumptions.assumeThat(multiRegionAccessPointAlias).isNotEmpty();
+    clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
+    S3Client s3Client = clientFactory.s3();
+    s3Client.putObject(
+        PutObjectRequest.builder().bucket(bucketName).key(objectKey).build(),
+        RequestBody.fromBytes(contentBytes));
+    S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
+    s3FileIO.initialize(
+        ImmutableMap.of(
+            S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
+            testMultiRegionAccessPointARN(
+                AwsIntegTestUtil.testRegion(), multiRegionAccessPointAlias)));
+    validateRead(s3FileIO);
+  }
+
+  @Test
   public void testNewOutputStream() throws Exception {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
     write(s3FileIO);
@@ -236,11 +255,11 @@ public class TestS3FileIOIntegration {
             S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
             testAccessPointARN(AwsIntegTestUtil.testRegion(), accessPointName)));
     write(s3FileIO);
-    InputStream stream =
-        s3.getObject(GetObjectRequest.builder().bucket(bucketName).key(objectKey).build());
-    String result = IoUtils.toUtf8String(stream);
-    stream.close();
-    assertThat(result).isEqualTo(content);
+    try (InputStream stream =
+        s3.getObject(GetObjectRequest.builder().bucket(bucketName).key(objectKey).build())) {
+      String result = IoUtils.toUtf8String(stream);
+      assertThat(result).isEqualTo(content);
+    }
   }
 
   @Test
@@ -255,17 +274,35 @@ public class TestS3FileIOIntegration {
             S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
             testAccessPointARN(AwsIntegTestUtil.testCrossRegion(), crossRegionAccessPointName)));
     write(s3FileIO);
-    InputStream stream =
+    try (InputStream stream =
         s3Client.getObject(
             GetObjectRequest.builder()
                 .bucket(
                     testAccessPointARN(
                         AwsIntegTestUtil.testCrossRegion(), crossRegionAccessPointName))
                 .key(objectKey)
-                .build());
-    String result = IoUtils.toUtf8String(stream);
-    stream.close();
-    assertThat(result).isEqualTo(content);
+                .build())) {
+      String result = IoUtils.toUtf8String(stream);
+      assertThat(result).isEqualTo(content);
+    }
+  }
+
+  @Test
+  public void testNewOutputStreamWithMultiRegionAccessPoint() throws Exception {
+    Assumptions.assumeThat(multiRegionAccessPointAlias).isNotEmpty();
+    clientFactory.initialize(ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true"));
+    S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
+    s3FileIO.initialize(
+        ImmutableMap.of(
+            S3FileIOProperties.ACCESS_POINTS_PREFIX + bucketName,
+            testMultiRegionAccessPointARN(
+                AwsIntegTestUtil.testRegion(), multiRegionAccessPointAlias)));
+    write(s3FileIO);
+    try (InputStream stream =
+        s3.getObject(GetObjectRequest.builder().bucket(bucketName).key(objectKey).build())) {
+      String result = IoUtils.toUtf8String(stream);
+      assertThat(result).isEqualTo(content);
+    }
   }
 
   @Test
@@ -450,7 +487,7 @@ public class TestS3FileIOIntegration {
   public void testPrefixList() {
     S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
     List<Integer> scaleSizes = Lists.newArrayList(1, 1000, 2500);
-    String listPrefix = String.format("s3://%s/%s/%s", bucketName, prefix, "prefix-list-test/");
+    String listPrefix = String.format("s3://%s/%s/%s", bucketName, prefix, "prefix-list-test");
 
     scaleSizes
         .parallelStream()
@@ -543,18 +580,18 @@ public class TestS3FileIOIntegration {
 
   private void write(S3FileIO s3FileIO, String uri) throws Exception {
     OutputFile outputFile = s3FileIO.newOutputFile(uri);
-    OutputStream outputStream = outputFile.create();
-    IoUtils.copy(new ByteArrayInputStream(contentBytes), outputStream);
-    outputStream.close();
+    try (OutputStream outputStream = outputFile.create()) {
+      IoUtils.copy(new ByteArrayInputStream(contentBytes), outputStream);
+    }
   }
 
   private void validateRead(S3FileIO s3FileIO) throws Exception {
     InputFile file = s3FileIO.newInputFile(objectUri);
     assertThat(file.getLength()).isEqualTo(contentBytes.length);
-    InputStream stream = file.newStream();
-    String result = IoUtils.toUtf8String(stream);
-    stream.close();
-    assertThat(result).isEqualTo(content);
+    try (InputStream stream = file.newStream()) {
+      String result = IoUtils.toUtf8String(stream);
+      assertThat(result).isEqualTo(content);
+    }
   }
 
   private String testAccessPointARN(String region, String accessPoint) {
@@ -565,6 +602,13 @@ public class TestS3FileIOIntegration {
         region,
         AwsIntegTestUtil.testAccountId(),
         accessPoint);
+  }
+
+  private String testMultiRegionAccessPointARN(String region, String alias) {
+    // format: arn:aws:s3::account-id:accesspoint/MultiRegionAccessPoint_alias
+    return String.format(
+        "arn:%s:s3::%s:accesspoint/%s",
+        PartitionMetadata.of(Region.of(region)).id(), AwsIntegTestUtil.testAccountId(), alias);
   }
 
   private void createRandomObjects(String objectPrefix, int count) {

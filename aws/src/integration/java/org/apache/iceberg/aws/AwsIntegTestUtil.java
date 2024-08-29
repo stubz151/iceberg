@@ -44,7 +44,6 @@ import software.amazon.awssdk.services.s3control.model.DeleteAccessPointRequest;
 public class AwsIntegTestUtil {
 
   private static final Logger LOG = LoggerFactory.getLogger(AwsIntegTestUtil.class);
-  private static final int BATCH_DELETION_SIZE = 1000;
 
   private AwsIntegTestUtil() {}
 
@@ -98,16 +97,28 @@ public class AwsIntegTestUtil {
     return System.getenv("AWS_TEST_ACCOUNT_ID");
   }
 
+  /**
+   * Set the environment variable AWS_TEST_MULTI_REGION_ACCESS_POINT_ALIAS for a default account to
+   * use for testing. Developers need to create a S3 multi region access point before running
+   * integration tests because creating it takes a few minutes
+   *
+   * @return The alias of S3 multi region access point route to the default S3 bucket
+   */
+  public static String testMultiRegionAccessPointAlias() {
+    return System.getenv("AWS_TEST_MULTI_REGION_ACCESS_POINT_ALIAS");
+  }
+
   public static void cleanS3GeneralBucket(S3Client s3, String bucketName, String prefix) {
     ListObjectVersionsIterable response =
         s3.listObjectVersionsPaginator(
             ListObjectVersionsRequest.builder().bucket(bucketName).prefix(prefix).build());
     List<ObjectVersion> versionsToDelete = Lists.newArrayList();
+    int batchDeletionSize = 1000;
     response.versions().stream()
         .forEach(
             version -> {
               versionsToDelete.add(version);
-              if (versionsToDelete.size() == BATCH_DELETION_SIZE) {
+              if (versionsToDelete.size() == batchDeletionSize) {
                 deleteObjectVersions(s3, bucketName, versionsToDelete);
                 versionsToDelete.clear();
               }
@@ -130,7 +141,7 @@ public class AwsIntegTestUtil {
     List<ObjectIdentifier> objectsToDelete = Lists.newArrayList();
     paginatedListResponse.contents().stream()
         .forEach(s3Object -> {
-          if (objectsToDelete.size() == BATCH_DELETION_SIZE) {
+          if (objectsToDelete.size() == 100) {
             deleteObjects(s3, bucketName, objectsToDelete);
             objectsToDelete.clear();
           }
