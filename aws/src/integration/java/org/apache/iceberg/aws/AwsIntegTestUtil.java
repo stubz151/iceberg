@@ -20,6 +20,9 @@ package org.apache.iceberg.aws;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.iceberg.aws.s3.S3FileIO;
+import org.apache.iceberg.io.FileInfo;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -32,11 +35,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.ObjectVersion;
 import software.amazon.awssdk.services.s3.paginators.ListObjectVersionsIterable;
-import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 import software.amazon.awssdk.services.s3control.S3ControlClient;
 import software.amazon.awssdk.services.s3control.model.CreateAccessPointRequest;
 import software.amazon.awssdk.services.s3control.model.DeleteAccessPointRequest;
@@ -129,37 +130,18 @@ public class AwsIntegTestUtil {
     }
   }
 
-  public static void cleanS3ExpressBucket(S3Client s3, String bucketName, String prefix) {
-    // For S3 express we just need to delete the objects not the versions.
-    ListObjectsV2Request listRequest =
-        ListObjectsV2Request.builder()
-            .bucket(bucketName)
-            .prefix(prefix)
-            .build();
-
-    ListObjectsV2Iterable paginatedListResponse = s3.listObjectsV2Paginator(listRequest);
-    List<ObjectIdentifier> objectsToDelete = Lists.newArrayList();
-    paginatedListResponse.contents().stream()
-        .forEach(s3Object -> {
-          if (objectsToDelete.size() == 100) {
-            deleteObjects(s3, bucketName, objectsToDelete);
-            objectsToDelete.clear();
-          }
-          objectsToDelete.add(ObjectIdentifier.builder()
-              .key(s3Object.key())
-              .build());
-        });
-
-    if (!objectsToDelete.isEmpty()) {
-      deleteObjects(s3, bucketName, objectsToDelete);
-    }
-  }
-
-  private static void deleteObjects(S3Client s3, String bucketName, List<ObjectIdentifier> objectsToDelete) {
-    s3.deleteObjects(DeleteObjectsRequest.builder()
-      .bucket(bucketName)
-      .delete(Delete.builder().objects(objectsToDelete).build())
-      .build());
+  /**
+   * Method used to clean up S3 express bucket which doesn't care about versions
+   * @param s3FileIO an instance of s3FileIO to be used to list/delete objects
+   * @param bucketName name of the bucket
+   * @param prefix the path prefix we want to remove
+   */
+  public static void cleanS3ExpressBucket(S3FileIO s3FileIO, String prefix, String bucketName) {
+    String listPrefix = String.format("s3://%s/%s", bucketName, prefix);
+    Iterable<FileInfo> listResponse = s3FileIO.listPrefix(listPrefix);
+    List<String> objectsToDelete =  Lists.newArrayList();
+    listResponse.forEach(fileInfo -> objectsToDelete.add(fileInfo.location()));
+    s3FileIO.deleteFiles(objectsToDelete);
   }
 
   private static void deleteObjectVersions(
