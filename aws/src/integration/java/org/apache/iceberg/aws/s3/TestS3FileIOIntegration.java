@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -104,7 +104,9 @@ public class TestS3FileIOIntegration {
     accessPointName = UUID.randomUUID().toString();
     crossRegionAccessPointName = UUID.randomUUID().toString();
     prefix = UUID.randomUUID().toString();
-    contentBytes = new byte[1024 * 1024 * 10];
+    contentBytes = ("\n" +
+                "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=")
+            .getBytes(Charset.defaultCharset());
     deletionBatchSize = 3;
     content = new String(contentBytes, StandardCharsets.UTF_8);
     kmsKeyArn = kms.createKey().keyMetadata().arn();
@@ -123,7 +125,7 @@ public class TestS3FileIOIntegration {
 
   @AfterAll
   public static void afterClass() {
-    AwsIntegTestUtil.cleanS3Bucket(s3, bucketName, prefix);
+    //AwsIntegTestUtil.cleanS3Bucket(s3, bucketName, prefix);
     AwsIntegTestUtil.deleteAccessPoint(s3Control, accessPointName);
     AwsIntegTestUtil.deleteAccessPoint(crossRegionS3Control, crossRegionAccessPointName);
     kms.scheduleKeyDeletion(
@@ -225,7 +227,16 @@ public class TestS3FileIOIntegration {
 
   @Test
   public void testNewOutputStream() throws Exception {
-    S3FileIO s3FileIO = new S3FileIO(clientFactory::s3);
+    S3FileIO s3FileIO = new S3FileIO();
+    Map<String, String> properties = Maps.newHashMap();
+    properties.put(
+            S3FileIOProperties.CHECKSUM_ENABLED,
+            "TRUE");
+    properties.put(
+            S3FileIOProperties.CHECKSUM_ALGORITHM,
+            "CRC32");
+    s3FileIO.initialize(properties);
+
     write(s3FileIO);
     try (InputStream stream =
         s3.getObject(GetObjectRequest.builder().bucket(bucketName).key(objectKey).build())) {

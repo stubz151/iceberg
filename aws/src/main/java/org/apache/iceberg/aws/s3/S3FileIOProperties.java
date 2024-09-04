@@ -40,6 +40,7 @@ import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.client.config.SdkAdvancedClientOption;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.Tag;
 
@@ -234,6 +235,11 @@ public class S3FileIOProperties implements Serializable {
 
   public static final boolean CHECKSUM_ENABLED_DEFAULT = false;
 
+  /** Configures which S3 checksum algorithm to be used */
+  public static final String CHECKSUM_ALGORITHM = "s3.checksum-algorithm";
+
+  public static final String CHECKSUM_ALGORITHM_DEFAULT = ChecksumAlgorithm.CRC32.toString();
+
   public static final String REMOTE_SIGNING_ENABLED = "s3.remote-signing-enabled";
 
   public static final boolean REMOTE_SIGNING_ENABLED_DEFAULT = false;
@@ -408,6 +414,7 @@ public class S3FileIOProperties implements Serializable {
   private String stagingDirectory;
   private ObjectCannedACL acl;
   private boolean isChecksumEnabled;
+  private ChecksumAlgorithm checksumAlgorithm;
   private final Set<Tag> writeTags;
   private boolean isWriteTableTagEnabled;
   private boolean isWriteNamespaceTagEnabled;
@@ -517,6 +524,13 @@ public class S3FileIOProperties implements Serializable {
         "Cannot support S3 CannedACL " + aclType);
     this.isChecksumEnabled =
         PropertyUtil.propertyAsBoolean(properties, CHECKSUM_ENABLED, CHECKSUM_ENABLED_DEFAULT);
+
+    this.checksumAlgorithm = ChecksumAlgorithm.fromValue
+            (properties.get(PropertyUtil.propertyAsString(properties, CHECKSUM_ALGORITHM, CHECKSUM_ALGORITHM_DEFAULT)));
+    if (this.checksumAlgorithm == ChecksumAlgorithm.UNKNOWN_TO_SDK_VERSION){
+      throw new IllegalArgumentException("Unsupported checksum algorithm please provide");
+    }
+
     this.deleteBatchSize =
         PropertyUtil.propertyAsInt(properties, DELETE_BATCH_SIZE, DELETE_BATCH_SIZE_DEFAULT);
     Preconditions.checkArgument(
@@ -659,6 +673,10 @@ public class S3FileIOProperties implements Serializable {
     return this.isChecksumEnabled;
   }
 
+  public ChecksumAlgorithm checksumAlgorithm() {
+    return this.checksumAlgorithm;
+  }
+
   public boolean isRemoteSigningEnabled() {
     return this.isRemoteSigningEnabled;
   }
@@ -669,6 +687,10 @@ public class S3FileIOProperties implements Serializable {
 
   public void setChecksumEnabled(boolean eTagCheckEnabled) {
     this.isChecksumEnabled = eTagCheckEnabled;
+  }
+
+  public void setChecksumAlgorithm(ChecksumAlgorithm checksumAlgorithm) {
+    this.checksumAlgorithm = checksumAlgorithm;
   }
 
   public Set<Tag> writeTags() {

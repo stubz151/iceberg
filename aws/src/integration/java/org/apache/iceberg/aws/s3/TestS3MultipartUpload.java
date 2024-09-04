@@ -20,20 +20,21 @@ package org.apache.iceberg.aws.s3;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.apache.iceberg.aws.AwsClientFactories;
 import org.apache.iceberg.aws.AwsIntegTestUtil;
-import org.apache.iceberg.io.PositionOutputStream;
-import org.apache.iceberg.io.SeekableInputStream;
+import org.apache.iceberg.io.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.utils.*;
 
 /** Long-running tests to ensure multipart upload logic is resilient */
 public class TestS3MultipartUpload {
@@ -54,18 +55,19 @@ public class TestS3MultipartUpload {
     properties = new S3FileIOProperties();
     properties.setMultiPartSize(S3FileIOProperties.MULTIPART_SIZE_MIN);
     properties.setChecksumEnabled(true);
+    properties.setChecksumAlgorithm(ChecksumAlgorithm.CRC32);
     io = new S3FileIO(() -> s3, properties);
   }
 
   @AfterAll
   public static void afterClass() {
-    AwsIntegTestUtil.cleanS3Bucket(s3, bucketName, prefix);
+    // AwsIntegTestUtil.cleanS3Bucket(s3, bucketName, prefix);
   }
 
   @BeforeEach
   public void before() {
     String objectKey = String.format("%s/%s", prefix, UUID.randomUUID());
-    objectUri = String.format("s3://%s/%s", bucketName, objectKey);
+    objectUri = String.format("s3://%s/%s", bucketName, String.format("today%s", objectKey));
   }
 
   @Test
@@ -80,6 +82,7 @@ public class TestS3MultipartUpload {
   public void testManyPartsWriteWithBytes() {
     int parts = 200;
     byte[] bytes = new byte[S3FileIOProperties.MULTIPART_SIZE_MIN];
+
     writeBytes(
         objectUri,
         parts,
@@ -89,6 +92,7 @@ public class TestS3MultipartUpload {
         });
     assertThat(io.newInputFile(objectUri).getLength())
         .isEqualTo(parts * (long) S3FileIOProperties.MULTIPART_SIZE_MIN);
+    validateRead(io, bytes);
   }
 
   @Test
@@ -105,6 +109,7 @@ public class TestS3MultipartUpload {
     }
     writeBytes(objectUri, 10, () -> bytes);
     verifyInts(objectUri, () -> 6);
+    validateRead(io, bytes);
   }
 
   @Test
