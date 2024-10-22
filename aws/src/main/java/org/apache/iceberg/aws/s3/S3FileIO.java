@@ -94,6 +94,9 @@ public class S3FileIO implements CredentialSupplier, DelegateFileIO, SupportsRec
   private final AtomicBoolean isResourceClosed = new AtomicBoolean(false);
   private transient StackTraceElement[] createStack;
 
+  /** Suffix of S3Express storage bucket names. */
+  public static final String S3EXPRESS_STORE_SUFFIX = "--x-s3";
+
   /**
    * No-arg constructor to load the FileIO dynamically.
    *
@@ -298,8 +301,15 @@ public class S3FileIO implements CredentialSupplier, DelegateFileIO, SupportsRec
   @Override
   public Iterable<FileInfo> listPrefix(String prefix) {
     S3URI s3uri = new S3URI(prefix, s3FileIOProperties.bucketToAccessPointMapping());
+    String suffix = "";
+    if (checkIfS3Express(s3uri.bucket())
+        && !prefix.endsWith("/")
+        && s3FileIOProperties.isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled()) {
+      suffix = "/";
+    }
+
     ListObjectsV2Request request =
-        ListObjectsV2Request.builder().bucket(s3uri.bucket()).prefix(s3uri.key()).build();
+        ListObjectsV2Request.builder().bucket(s3uri.bucket()).prefix(s3uri.key() + suffix).build();
 
     return () ->
         client().listObjectsV2Paginator(request).stream()
@@ -441,6 +451,16 @@ public class S3FileIO implements CredentialSupplier, DelegateFileIO, SupportsRec
         response.versions().stream().max(Comparator.comparing(ObjectVersion::lastModified));
 
     return recoverVersion.map(version -> recoverObject(version, location.bucket())).orElse(false);
+  }
+
+  /**
+   * Check for a bucket name matching -does not look at endpoint.
+   *
+   * @param bucket bucket to probe.
+   * @return true if the suffix is present
+   */
+  public static boolean checkIfS3Express(final String bucket) {
+    return bucket.endsWith(S3EXPRESS_STORE_SUFFIX);
   }
 
   private boolean recoverObject(ObjectVersion version, String bucket) {

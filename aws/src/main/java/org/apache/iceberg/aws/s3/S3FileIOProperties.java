@@ -428,6 +428,12 @@ public class S3FileIOProperties implements Serializable {
 
   public static final long S3_RETRY_MAX_WAIT_MS_DEFAULT = 20_000; // 20 seconds
 
+  /** Controls whether to list prefixes as directories for S3 Directory buckets */
+  public static final String S3_DIRECTORY_BUCKET_LIST_PREFIX_AS_DIRECTORY =
+      "s3.directory-bucket.list-prefix-as-directories";
+
+  public static final boolean S3_DIRECTORY_BUCKET_LIST_PREFIX_AS_DIRECTORY_DEFAULT = true;
+
   private String sseType;
   private String sseKey;
   private String sseMd5;
@@ -462,6 +468,8 @@ public class S3FileIOProperties implements Serializable {
   private int s3RetryNumRetries;
   private long s3RetryMinWaitMs;
   private long s3RetryMaxWaitMs;
+
+  private boolean isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled;
   private final Map<String, String> allProperties;
 
   public S3FileIOProperties() {
@@ -498,6 +506,8 @@ public class S3FileIOProperties implements Serializable {
     this.s3RetryNumRetries = S3_RETRY_NUM_RETRIES_DEFAULT;
     this.s3RetryMinWaitMs = S3_RETRY_MIN_WAIT_MS_DEFAULT;
     this.s3RetryMaxWaitMs = S3_RETRY_MAX_WAIT_MS_DEFAULT;
+    this.isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled =
+        S3_DIRECTORY_BUCKET_LIST_PREFIX_AS_DIRECTORY_DEFAULT;
     this.allProperties = Maps.newHashMap();
 
     ValidationException.check(
@@ -605,6 +615,11 @@ public class S3FileIOProperties implements Serializable {
         PropertyUtil.propertyAsLong(properties, S3_RETRY_MIN_WAIT_MS, S3_RETRY_MIN_WAIT_MS_DEFAULT);
     this.s3RetryMaxWaitMs =
         PropertyUtil.propertyAsLong(properties, S3_RETRY_MAX_WAIT_MS, S3_RETRY_MAX_WAIT_MS_DEFAULT);
+    this.isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled =
+        PropertyUtil.propertyAsBoolean(
+            properties,
+            S3_DIRECTORY_BUCKET_LIST_PREFIX_AS_DIRECTORY,
+            S3_DIRECTORY_BUCKET_LIST_PREFIX_AS_DIRECTORY_DEFAULT);
 
     ValidationException.check(
         keyIdAccessKeyBothConfigured(),
@@ -835,6 +850,16 @@ public class S3FileIOProperties implements Serializable {
 
   public long s3RetryTotalWaitMs() {
     return (long) s3RetryNumRetries() * s3RetryMaxWaitMs();
+  }
+
+  public boolean isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled() {
+    return isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled;
+  }
+
+  public void setTreatS3DirectoryBucketListPrefixAsDirectoryEnabled(
+      boolean treatS3DirectoryBucketListPrefixAsDirectoryEnabled) {
+    isTreatS3DirectoryBucketListPrefixAsDirectoryEnabled =
+        treatS3DirectoryBucketListPrefixAsDirectoryEnabled;
   }
 
   private boolean keyIdAccessKeyBothConfigured() {
