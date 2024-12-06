@@ -44,46 +44,17 @@ public class TestSparkCatalogOperations extends CatalogTestBase {
   @Parameters(name = "catalogName = {0}, implementation = {1}, config = {2}")
   protected static Object[][] parameters() {
     return new Object[][] {
-      {
-        SparkCatalogConfig.HIVE.catalogName(),
-        SparkCatalogConfig.HIVE.implementation(),
-        ImmutableMap.of(
-            "type", "hive",
-            "default-namespace", "default",
-            "use-nullable-query-schema", Boolean.toString(USE_NULLABLE_QUERY_SCHEMA))
-      },
-      {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        ImmutableMap.of(
-            "type",
-            "hadoop",
-            "cache-enabled",
-            "false",
-            "use-nullable-query-schema",
-            Boolean.toString(USE_NULLABLE_QUERY_SCHEMA))
-      },
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        ImmutableMap.of(
-            "type",
-            "hive",
-            "default-namespace",
-            "default",
-            "parquet-enabled",
-            "true",
-            "cache-enabled",
-            "false", // Spark will delete tables using v1, leaving the cache out of sync
-            "use-nullable-query-schema",
-            Boolean.toString(USE_NULLABLE_QUERY_SCHEMA)),
-      }
+        {
+            SparkCatalogConfig.ICE_CATALOG.catalogName(),
+            SparkCatalogConfig.ICE_CATALOG.implementation(),
+            SparkCatalogConfig.ICE_CATALOG.properties()
+        },
     };
   }
 
   @BeforeEach
   public void createTable() {
-    sql("CREATE TABLE %s (id bigint NOT NULL, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint NOT NULL, data string) USING iceberg", tableName);
   }
 
   @AfterEach
@@ -140,7 +111,7 @@ public class TestSparkCatalogOperations extends CatalogTestBase {
 
     String ctasTableName = tableName("ctas_table");
 
-    sql("CREATE TABLE %s USING iceberg AS SELECT * FROM %s", ctasTableName, tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s USING iceberg AS SELECT * FROM %s", ctasTableName, tableName);
 
     org.apache.iceberg.Table ctasTable =
         validationCatalog.loadTable(TableIdentifier.parse("default.ctas_table"));
@@ -164,7 +135,7 @@ public class TestSparkCatalogOperations extends CatalogTestBase {
     sql("INSERT INTO %s VALUES(1, 'abc'), (2, null)", tableName);
 
     String rtasTableName = tableName("rtas_table");
-    sql("CREATE TABLE %s (id bigint NOT NULL, data string) USING iceberg", rtasTableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint NOT NULL, data string) USING iceberg", rtasTableName);
 
     sql("REPLACE TABLE %s USING iceberg AS SELECT * FROM %s", rtasTableName, tableName);
 

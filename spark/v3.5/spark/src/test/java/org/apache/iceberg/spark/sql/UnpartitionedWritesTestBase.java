@@ -38,7 +38,7 @@ public abstract class UnpartitionedWritesTestBase extends CatalogTestBase {
 
   @BeforeEach
   public void createTables() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
     sql("INSERT INTO %s VALUES (1, 'a'), (2, 'b'), (3, 'c')", tableName);
   }
 

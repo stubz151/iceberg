@@ -44,16 +44,16 @@ public class TestSparkCachedTableCatalog extends TestBaseWithCatalog {
   protected static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HIVE.catalogName(),
-        SparkCatalogConfig.HIVE.implementation(),
-        SparkCatalogConfig.HIVE.properties()
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties()
       },
     };
   }
 
   @TestTemplate
   public void testTimeTravel() {
-    sql("CREATE TABLE %s (id INT, dep STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, dep STRING) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 

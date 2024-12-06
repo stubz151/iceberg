@@ -61,15 +61,15 @@ public class TestStoragePartitionedJoins extends TestBaseWithCatalog {
   public static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         LOCAL
       },
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         DISTRIBUTED
       },
     };

@@ -40,7 +40,7 @@ public class TestAlterTable extends CatalogTestBase {
 
   @BeforeEach
   public void createTable() {
-    sql("CREATE TABLE %s (id bigint NOT NULL, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint NOT NULL, data string) USING iceberg", tableName);
   }
 
   @AfterEach

@@ -41,7 +41,7 @@ public class TestDeleteFrom extends CatalogTestBase {
 
   @TestTemplate
   public void testDeleteFromUnpartitionedTable() throws NoSuchTableException {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -71,7 +71,7 @@ public class TestDeleteFrom extends CatalogTestBase {
 
   @TestTemplate
   public void testDeleteFromTableAtSnapshot() throws NoSuchTableException {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -121,7 +121,7 @@ public class TestDeleteFrom extends CatalogTestBase {
 
   @TestTemplate
   public void testDeleteFromWhereFalse() {
-    sql("CREATE TABLE %s (id bigint NOT NULL, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint NOT NULL, data string) USING iceberg", tableName);
     sql("INSERT INTO TABLE %s VALUES (1, 'a'), (2, 'b'), (3, 'c')", tableName);
 
     assertEquals(
@@ -141,7 +141,7 @@ public class TestDeleteFrom extends CatalogTestBase {
 
   @TestTemplate
   public void testTruncate() {
-    sql("CREATE TABLE %s (id bigint NOT NULL, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint NOT NULL, data string) USING iceberg", tableName);
     sql("INSERT INTO TABLE %s VALUES (1, 'a'), (2, 'b'), (3, 'c')", tableName);
 
     assertEquals(

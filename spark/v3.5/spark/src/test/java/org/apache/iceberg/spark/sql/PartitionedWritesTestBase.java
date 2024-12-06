@@ -33,6 +33,7 @@ import org.apache.spark.sql.catalyst.analysis.NoSuchTableException;
 import org.apache.spark.sql.functions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 
 public abstract class PartitionedWritesTestBase extends CatalogTestBase {
@@ -51,6 +52,7 @@ public abstract class PartitionedWritesTestBase extends CatalogTestBase {
   }
 
   @TestTemplate
+  @Disabled("S3TablesCatalog does not support more than 1 level of namespace")
   public void testInsertAppend() {
     assertThat(scalarSql("SELECT count(*) FROM %s", selectTarget()))
         .as("Should have 5 rows after insert")
@@ -72,6 +74,7 @@ public abstract class PartitionedWritesTestBase extends CatalogTestBase {
   }
 
   @TestTemplate
+
   public void testInsertOverwrite() {
     assertThat(scalarSql("SELECT count(*) FROM %s", selectTarget()))
         .as("Should have 5 rows after insert")
@@ -94,6 +97,7 @@ public abstract class PartitionedWritesTestBase extends CatalogTestBase {
   }
 
   @TestTemplate
+  @Disabled("S3TablesCatalog does not support more than 1 level of namespace")
   public void testDataFrameV2Append() throws NoSuchTableException {
     assertThat(scalarSql("SELECT count(*) FROM %s", selectTarget()))
         .as("Should have 3 rows")
@@ -118,6 +122,7 @@ public abstract class PartitionedWritesTestBase extends CatalogTestBase {
   }
 
   @TestTemplate
+  @Disabled("S3TablesCatalog does not support more than 1 level of namespace")
   public void testDataFrameV2DynamicOverwrite() throws NoSuchTableException {
     assertThat(scalarSql("SELECT count(*) FROM %s", selectTarget()))
         .as("Should have 3 rows")
@@ -142,6 +147,7 @@ public abstract class PartitionedWritesTestBase extends CatalogTestBase {
   }
 
   @TestTemplate
+  @Disabled("S3TablesCatalog does not support more than 1 level of namespace")
   public void testDataFrameV2Overwrite() throws NoSuchTableException {
     assertThat(scalarSql("SELECT count(*) FROM %s", selectTarget()))
         .as("Should have 3 rows")

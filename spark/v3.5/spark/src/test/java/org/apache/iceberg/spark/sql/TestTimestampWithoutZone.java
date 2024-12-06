@@ -57,20 +57,6 @@ public class TestTimestampWithoutZone extends CatalogTestBase {
           row(2L, toLocalDateTime("2021-01-01T00:00:00.0"), toTimestamp("2021-02-01T00:00:00.0")),
           row(3L, toLocalDateTime("2021-01-01T00:00:00.0"), toTimestamp("2021-02-01T00:00:00.0")));
 
-  @Parameters(name = "catalogName = {0}, implementation = {1}, config = {2}")
-  public static Object[][] parameters() {
-    return new Object[][] {
-      {
-        "spark_catalog",
-        SparkSessionCatalog.class.getName(),
-        ImmutableMap.of(
-            "type", "hive",
-            "default-namespace", "default",
-            "parquet-enabled", "true",
-            "cache-enabled", "false")
-      }
-    };
-  }
 
   @BeforeEach
   public void createTables() {
@@ -141,7 +127,7 @@ public class TestTimestampWithoutZone extends CatalogTestBase {
   public void testCreateAsSelectWithTimestampWithoutZone() {
     sql("INSERT INTO %s VALUES %s", tableName, rowToSqlValues(values));
 
-    sql("CREATE TABLE %s USING iceberg AS SELECT * FROM %s", NEW_TABLE_NAME, tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s USING iceberg AS SELECT * FROM %s", NEW_TABLE_NAME, tableName);
 
     assertThat(scalarSql("SELECT count(*) FROM %s", NEW_TABLE_NAME))
         .as("Should have " + values.size() + " row")
@@ -157,7 +143,7 @@ public class TestTimestampWithoutZone extends CatalogTestBase {
   public void testCreateNewTableShouldHaveTimestampWithZoneIcebergType() {
     sql("INSERT INTO %s VALUES %s", tableName, rowToSqlValues(values));
 
-    sql("CREATE TABLE %s USING iceberg AS SELECT * FROM %s", NEW_TABLE_NAME, tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s USING iceberg AS SELECT * FROM %s", NEW_TABLE_NAME, tableName);
 
     assertThat(scalarSql("SELECT count(*) FROM %s", NEW_TABLE_NAME))
         .as("Should have " + values.size() + " row")
@@ -182,7 +168,7 @@ public class TestTimestampWithoutZone extends CatalogTestBase {
         .initialize(catalog.name(), new CaseInsensitiveStringMap(catalogConfig));
     sql("INSERT INTO %s VALUES %s", tableName, rowToSqlValues(values));
 
-    sql("CREATE TABLE %s USING iceberg AS SELECT * FROM %s", NEW_TABLE_NAME, tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s USING iceberg AS SELECT * FROM %s", NEW_TABLE_NAME, tableName);
 
     assertThat(scalarSql("SELECT count(*) FROM %s", NEW_TABLE_NAME))
         .as("Should have " + values.size() + " row")

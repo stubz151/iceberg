@@ -57,15 +57,15 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
   public static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         LOCAL
       },
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         DISTRIBUTED
       }
     };
@@ -99,7 +99,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 10).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");
@@ -138,7 +138,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 2).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");
@@ -177,7 +177,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 2).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");
@@ -218,7 +218,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE, data STRING) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE, data STRING) USING parquet");
     Dataset<Row> dimDF =
         spark
             .range(1, 2)
@@ -261,7 +261,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE, data STRING) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE, data STRING) USING parquet");
     Dataset<Row> dimDF =
         spark
             .range(1, 2)
@@ -318,7 +318,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df2.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 2).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");
@@ -360,7 +360,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     sql("SELECT * FROM %s WHERE `i.d` = 1", tableName);
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 2).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");
@@ -403,7 +403,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 2).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");
@@ -440,7 +440,7 @@ public class TestRuntimeFiltering extends TestBaseWithCatalog {
 
     df.coalesce(1).writeTo(tableName).append();
 
-    sql("CREATE TABLE dim (id BIGINT, date DATE) USING parquet");
+    sql("CREATE TABLE IF NOT EXISTS dim (id BIGINT, date DATE) USING parquet");
     Dataset<Row> dimDF =
         spark.range(1, 2).withColumn("date", expr("DATE '1970-01-02'")).select("id", "date");
     dimDF.coalesce(1).write().mode("append").insertInto("dim");

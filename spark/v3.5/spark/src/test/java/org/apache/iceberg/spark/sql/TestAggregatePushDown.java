@@ -232,7 +232,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregateNotPushDownIfOneCantPushDown() {
-    sql("CREATE TABLE %s (id LONG, data DOUBLE) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id LONG, data DOUBLE) USING iceberg", tableName);
     sql(
         "INSERT INTO TABLE %s VALUES (1, 1111), (1, 2222), (2, 3333), (2, 4444), (3, 5555), (3, 6666) ",
         tableName);
@@ -257,7 +257,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregatePushDownWithMetricsMode() {
-    sql("CREATE TABLE %s (id LONG, data DOUBLE) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id LONG, data DOUBLE) USING iceberg", tableName);
     sql(
         "ALTER TABLE %s SET TBLPROPERTIES('%s' '%s')",
         tableName, TableProperties.DEFAULT_WRITE_METRICS_MODE, "none");
@@ -329,7 +329,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregateNotPushDownForStringType() {
-    sql("CREATE TABLE %s (id LONG, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id LONG, data STRING) USING iceberg", tableName);
     sql(
         "INSERT INTO TABLE %s VALUES (1, '1111'), (1, '2222'), (2, '3333'), (2, '4444'), (3, '5555'), (3, '6666') ",
         tableName);
@@ -451,7 +451,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregateWithComplexType() {
-    sql("CREATE TABLE %s (id INT, complex STRUCT<c1:INT,c2:STRING>) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, complex STRUCT<c1:INT,c2:STRING>) USING iceberg", tableName);
     sql(
         "INSERT INTO TABLE %s VALUES (1, named_struct(\"c1\", 3, \"c2\", \"v1\")),"
             + "(2, named_struct(\"c1\", 2, \"c2\", \"v2\")), (3, null)",
@@ -488,7 +488,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregationPushdownStructInteger() {
-    sql("CREATE TABLE %s (id BIGINT, struct_with_int STRUCT<c1:BIGINT>) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id BIGINT, struct_with_int STRUCT<c1:BIGINT>) USING iceberg", tableName);
     sql("INSERT INTO TABLE %s VALUES (1, named_struct(\"c1\", NULL))", tableName);
     sql("INSERT INTO TABLE %s VALUES (2, named_struct(\"c1\", 2))", tableName);
     sql("INSERT INTO TABLE %s VALUES (3, named_struct(\"c1\", 3))", tableName);
@@ -602,7 +602,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregatePushDownInDeleteCopyOnWrite() {
-    sql("CREATE TABLE %s (id LONG, data INT) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id LONG, data INT) USING iceberg", tableName);
     sql(
         "INSERT INTO TABLE %s VALUES (1, 1111), (1, 2222), (2, 3333), (2, 4444), (3, 5555), (3, 6666) ",
         tableName);
@@ -630,7 +630,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregatePushDownForTimeTravel() {
-    sql("CREATE TABLE %s (id LONG, data INT) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id LONG, data INT) USING iceberg", tableName);
     sql(
         "INSERT INTO TABLE %s VALUES (1, 1111), (1, 2222), (2, 3333), (2, 4444), (3, 5555), (3, 6666) ",
         tableName);
@@ -669,7 +669,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAllNull() {
-    sql("CREATE TABLE %s (id int, data int) USING iceberg PARTITIONED BY (id)", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data int) USING iceberg PARTITIONED BY (id)", tableName);
     sql(
         "INSERT INTO %s VALUES (1, null),"
             + "(1, null), "
@@ -701,7 +701,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAllNaN() {
-    sql("CREATE TABLE %s (id int, data float) USING iceberg PARTITIONED BY (id)", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data float) USING iceberg PARTITIONED BY (id)", tableName);
     sql(
         "INSERT INTO %s VALUES (1, float('nan')),"
             + "(1, float('nan')), "
@@ -733,7 +733,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testNaN() {
-    sql("CREATE TABLE %s (id int, data float) USING iceberg PARTITIONED BY (id)", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data float) USING iceberg PARTITIONED BY (id)", tableName);
     sql(
         "INSERT INTO %s VALUES (1, float('nan')),"
             + "(1, float('nan')), "
@@ -818,7 +818,7 @@ public class TestAggregatePushDown extends CatalogTestBase {
 
   @TestTemplate
   public void testAggregatePushDownForIncrementalScan() {
-    sql("CREATE TABLE %s (id LONG, data INT) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id LONG, data INT) USING iceberg", tableName);
     sql(
         "INSERT INTO TABLE %s VALUES (1, 1111), (1, 2222), (2, 3333), (2, 4444), (3, 5555), (3, 6666) ",
         tableName);

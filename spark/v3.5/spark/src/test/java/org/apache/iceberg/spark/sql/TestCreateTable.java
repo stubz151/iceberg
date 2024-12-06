@@ -95,7 +95,7 @@ public class TestCreateTable extends CatalogTestBase {
         .as("Table should not already exist")
         .isFalse();
 
-    sql("CREATE TABLE %s (id BIGINT NOT NULL, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id BIGINT NOT NULL, data STRING) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
     assertThat(table).as("Should load the new table").isNotNull();
@@ -142,7 +142,7 @@ public class TestCreateTable extends CatalogTestBase {
         .isEqualTo("testhadoop");
 
     try {
-      sql("CREATE TABLE %s.table (id bigint) USING iceberg", catalogName);
+      sql("CREATE TABLE IF NOT EXISTS %s.table (id bigint) USING iceberg", catalogName);
     } finally {
       sql("DROP TABLE IF EXISTS %s.table", catalogName);
     }
@@ -158,7 +158,7 @@ public class TestCreateTable extends CatalogTestBase {
         .as("Table should not already exist")
         .isFalse();
 
-    sql("CREATE TABLE %s (id BIGINT NOT NULL, data STRING) USING parquet", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id BIGINT NOT NULL, data STRING) USING parquet", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
     assertThat(table).as("Should load the new table").isNotNull();

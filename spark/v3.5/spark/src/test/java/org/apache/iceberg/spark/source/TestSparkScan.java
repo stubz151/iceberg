@@ -91,21 +91,21 @@ public class TestSparkScan extends TestBaseWithCatalog {
   public static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         "parquet"
       },
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         "avro"
       },
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
         "orc"
       }
     };
@@ -146,7 +146,7 @@ public class TestSparkScan extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testTableWithoutColStats() throws NoSuchTableException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -182,7 +182,7 @@ public class TestSparkScan extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testTableWithoutApacheDatasketchColStat() throws NoSuchTableException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -235,7 +235,7 @@ public class TestSparkScan extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testTableWithOneColStats() throws NoSuchTableException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -290,7 +290,7 @@ public class TestSparkScan extends TestBaseWithCatalog {
   @TestTemplate
   public void testTableWithOneApacheDatasketchColStatAndOneDifferentColStat()
       throws NoSuchTableException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -350,7 +350,7 @@ public class TestSparkScan extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testTableWithTwoColStats() throws NoSuchTableException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(

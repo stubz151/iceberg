@@ -45,7 +45,7 @@ import org.junit.jupiter.api.TestTemplate;
 public class TestDataFrameWriterV2 extends TestBaseWithCatalog {
   @BeforeEach
   public void createTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
   }
 
   @AfterEach
@@ -291,7 +291,7 @@ public class TestDataFrameWriterV2 extends TestBaseWithCatalog {
   @TestTemplate
   public void testMergeSchemaIgnoreCastingDoubleToFloat() throws Exception {
     removeTables();
-    sql("CREATE TABLE %s (id double, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id double, data string) USING iceberg", tableName);
     sql(
         "ALTER TABLE %s SET TBLPROPERTIES ('%s'='true')",
         tableName, TableProperties.SPARK_WRITE_ACCEPT_ANY_SCHEMA);
@@ -333,7 +333,7 @@ public class TestDataFrameWriterV2 extends TestBaseWithCatalog {
   @TestTemplate
   public void testMergeSchemaIgnoreCastingDecimalToDecimalWithNarrowerPrecision() throws Exception {
     removeTables();
-    sql("CREATE TABLE %s (id decimal(6,2), data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id decimal(6,2), data string) USING iceberg", tableName);
     sql(
         "ALTER TABLE %s SET TBLPROPERTIES ('%s'='true')",
         tableName, TableProperties.SPARK_WRITE_ACCEPT_ANY_SCHEMA);

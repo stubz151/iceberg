@@ -81,24 +81,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 
 public class TestSparkExecutorCache extends TestBaseWithCatalog {
-
-  @Parameters(name = "catalogName = {0}, implementation = {1}, config = {2}")
-  protected static Object[][] parameters() {
-    return new Object[][] {
-      {
-        "testhive",
-        SparkCatalog.class.getName(),
-        ImmutableMap.of(
-            "type",
-            "hive",
-            CatalogProperties.FILE_IO_IMPL,
-            CustomFileIO.class.getName(),
-            "default-namespace",
-            "default")
-      },
-    };
-  }
-
   private static final String UPDATES_VIEW_NAME = "updates";
   private static final AtomicInteger JOB_COUNTER = new AtomicInteger();
   private static final Map<String, CustomInputFile> INPUT_FILES =

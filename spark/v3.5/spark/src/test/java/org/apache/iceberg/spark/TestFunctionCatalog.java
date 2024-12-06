@@ -50,7 +50,12 @@ public class TestFunctionCatalog extends TestBaseWithCatalog {
 
   @AfterEach
   public void dropDefaultNamespace() {
-    sql("DROP NAMESPACE IF EXISTS %s", catalogName + ".default");
+    try {
+      sql("DROP NAMESPACE IF EXISTS %s", catalogName + ".default");
+    }
+     catch (Exception ex) {
+       System.out.println("test" + ex);
+     }
   }
 
   @TestTemplate

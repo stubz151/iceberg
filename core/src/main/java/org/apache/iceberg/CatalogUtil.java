@@ -70,6 +70,7 @@ public class CatalogUtil {
   public static final String ICEBERG_CATALOG_TYPE_HIVE = "hive";
   public static final String ICEBERG_CATALOG_TYPE_REST = "rest";
   public static final String ICEBERG_CATALOG_TYPE_GLUE = "glue";
+  public static final String ICEBERG_CATALOG_TYPE_ICE_CATALOG = "ice_catalog";
   public static final String ICEBERG_CATALOG_TYPE_NESSIE = "nessie";
   public static final String ICEBERG_CATALOG_TYPE_JDBC = "jdbc";
 
@@ -79,6 +80,8 @@ public class CatalogUtil {
   public static final String ICEBERG_CATALOG_GLUE = "org.apache.iceberg.aws.glue.GlueCatalog";
   public static final String ICEBERG_CATALOG_NESSIE = "org.apache.iceberg.nessie.NessieCatalog";
   public static final String ICEBERG_CATALOG_JDBC = "org.apache.iceberg.jdbc.JdbcCatalog";
+  public static final String ICEBERG_CATALOG_ICE_CATALOG =
+      "software.amazon.s3tables.iceberg.S3TablesCatalog";
 
   private CatalogUtil() {}
 
@@ -305,6 +308,9 @@ public class CatalogUtil {
           break;
         case ICEBERG_CATALOG_TYPE_GLUE:
           catalogImpl = ICEBERG_CATALOG_GLUE;
+          break;
+        case ICEBERG_CATALOG_TYPE_ICE_CATALOG:
+          catalogImpl = ICEBERG_CATALOG_ICE_CATALOG;
           break;
         case ICEBERG_CATALOG_TYPE_NESSIE:
           catalogImpl = ICEBERG_CATALOG_NESSIE;

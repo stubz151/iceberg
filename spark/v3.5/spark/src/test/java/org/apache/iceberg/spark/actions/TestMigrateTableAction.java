@@ -42,7 +42,7 @@ public class TestMigrateTableAction extends CatalogTestBase {
 
   @TestTemplate
   public void testMigrateWithParallelTasks() throws IOException {
-    assumeThat(catalogName).isEqualToIgnoringCase("spark_catalog");
+    assumeThat(catalogName).isEqualToIgnoringCase("ice_catalog");
     String location = Files.createTempDirectory(temp, "junit").toFile().toString();
     sql(
         "CREATE TABLE %s (id bigint NOT NULL, data string) USING parquet LOCATION '%s'",
@@ -58,7 +58,7 @@ public class TestMigrateTableAction extends CatalogTestBase {
                 4,
                 runnable -> {
                   Thread thread = new Thread(runnable);
-                  thread.setName("table-migration-" + migrationThreadsIndex.getAndIncrement());
+                  thread.setName("table2" + migrationThreadsIndex.getAndIncrement());
                   thread.setDaemon(true);
                   return thread;
                 }))

@@ -22,7 +22,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.iceberg.CatalogProperties;
@@ -42,6 +46,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import software.amazon.s3tables.iceberg.S3TablesCatalog;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public abstract class TestBaseWithCatalog extends TestBase {
@@ -51,9 +56,9 @@ public abstract class TestBaseWithCatalog extends TestBase {
   protected static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties()
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties()
       },
     };
   }
@@ -86,17 +91,12 @@ public abstract class TestBaseWithCatalog extends TestBase {
 
   protected Catalog validationCatalog;
   protected SupportsNamespaces validationNamespaceCatalog;
-  protected TableIdentifier tableIdent = TableIdentifier.of(Namespace.of("default"), "table");
+  private String name = "table" + new Random().nextInt(1000000);
+  protected TableIdentifier tableIdent = TableIdentifier.of(Namespace.of("default"), name);
   protected String tableName;
 
   @BeforeEach
   public void before() {
-    this.validationCatalog =
-        catalogName.equals("testhadoop")
-            ? new HadoopCatalog(spark.sessionState().newHadoopConf(), "file:" + warehouse)
-            : catalog;
-    this.validationNamespaceCatalog = (SupportsNamespaces) validationCatalog;
-
     spark.conf().set("spark.sql.catalog." + catalogName, implementation);
     catalogConfig.forEach(
         (key, value) -> spark.conf().set("spark.sql.catalog." + catalogName + "." + key, value));
@@ -105,14 +105,20 @@ public abstract class TestBaseWithCatalog extends TestBase {
       spark.conf().set("spark.sql.catalog." + catalogName + ".warehouse", "file:" + warehouse);
     }
 
-    this.tableName =
-        (catalogName.equals("spark_catalog") ? "" : catalogName + ".") + "default.table";
+    Catalog catalog = new S3TablesCatalog();
+    catalog.initialize("ice_catalog", catalogConfig);
+
+    this.validationCatalog = catalog;
+    this.validationNamespaceCatalog = (SupportsNamespaces) validationCatalog;
+
+    this.tableName = String.format("ice_catalog.default.%s", name);
 
     sql("CREATE NAMESPACE IF NOT EXISTS default");
   }
 
   protected String tableName(String name) {
-    return (catalogName.equals("spark_catalog") ? "" : catalogName + ".") + "default." + name;
+    return (catalogName.equals("spark_catalog") ? "" : catalogName + ".") + "default." + this.name;
+    //return (catalogName.equals("spark_catalog") ? "" : catalogName + ".") + "default." + name;
   }
 
   protected String commitTarget() {

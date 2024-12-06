@@ -479,7 +479,7 @@ public class TestDataSourceOptions extends TestBaseWithCatalog {
   public void testExtraSnapshotMetadataWithDelete()
       throws InterruptedException, NoSuchTableException {
     spark.sessionState().conf().setConfString("spark.sql.shuffle.partitions", "1");
-    sql("CREATE TABLE %s (id INT, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, data STRING) USING iceberg", tableName);
     List<SimpleRecord> expectedRecords =
         Lists.newArrayList(
             new SimpleRecord(1, "a"), new SimpleRecord(2, "b"), new SimpleRecord(3, "c"));

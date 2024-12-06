@@ -48,9 +48,9 @@ public class TestDataFrameWriterV2Coercion extends TestBaseWithCatalog {
 
   private static Object[] parameter(FileFormat fileFormat, String dataType) {
     return new Object[] {
-      SparkCatalogConfig.HADOOP.catalogName(),
-      SparkCatalogConfig.HADOOP.implementation(),
-      SparkCatalogConfig.HADOOP.properties(),
+      SparkCatalogConfig.ICE_CATALOG.catalogName(),
+      SparkCatalogConfig.ICE_CATALOG.implementation(),
+      SparkCatalogConfig.ICE_CATALOG.properties(),
       fileFormat,
       dataType
     };

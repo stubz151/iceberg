@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.iceberg.DataFile;
 import org.apache.iceberg.FileScanTask;
 import org.apache.iceberg.Table;
+import org.apache.iceberg.catalog.Namespace;
 import org.apache.iceberg.io.CloseableIterable;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableSet;
@@ -51,7 +52,7 @@ public class TestFileRewriteCoordinator extends CatalogTestBase {
 
   @TestTemplate
   public void testBinPackRewrite() throws NoSuchTableException, IOException {
-    sql("CREATE TABLE %s (id INT, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, data STRING) USING iceberg", tableName);
 
     Dataset<Row> df = newDF(1000);
     df.coalesce(1).writeTo(tableName).append();
@@ -113,7 +114,7 @@ public class TestFileRewriteCoordinator extends CatalogTestBase {
 
   @TestTemplate
   public void testSortRewrite() throws NoSuchTableException, IOException {
-    sql("CREATE TABLE %s (id INT, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, data STRING) USING iceberg", tableName);
 
     Dataset<Row> df = newDF(1000);
     df.coalesce(1).writeTo(tableName).append();
@@ -185,7 +186,7 @@ public class TestFileRewriteCoordinator extends CatalogTestBase {
 
   @TestTemplate
   public void testCommitMultipleRewrites() throws NoSuchTableException, IOException {
-    sql("CREATE TABLE %s (id INT, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, data STRING) USING iceberg", tableName);
 
     Dataset<Row> df = newDF(1000);
 

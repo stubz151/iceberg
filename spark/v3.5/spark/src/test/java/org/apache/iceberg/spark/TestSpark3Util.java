@@ -120,7 +120,7 @@ public class TestSpark3Util extends TestBase {
     spark.conf().set("spark.sql.catalog.hive.default-namespace", "default");
 
     String tableFullName = "hive.default.tbl";
-    sql("CREATE TABLE %s (c1 bigint, c2 string, c3 string) USING iceberg", tableFullName);
+    sql("CREATE TABLE IF NOT EXISTS %s (c1 bigint, c2 string, c3 string) USING iceberg", tableFullName);
 
     Table table = Spark3Util.loadIcebergTable(spark, tableFullName);
     assertThat(table.name()).isEqualTo(tableFullName);

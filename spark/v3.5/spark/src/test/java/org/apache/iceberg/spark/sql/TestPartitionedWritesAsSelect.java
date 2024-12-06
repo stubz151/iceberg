@@ -41,10 +41,10 @@ public class TestPartitionedWritesAsSelect extends TestBaseWithCatalog {
   protected static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
-        SparkCatalogConfig.HADOOP.catalogName() + ".default.target_table"
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName() + ".default.target_table"
       },
     };
   }

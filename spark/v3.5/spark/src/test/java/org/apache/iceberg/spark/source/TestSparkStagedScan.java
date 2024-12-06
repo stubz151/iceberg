@@ -45,7 +45,7 @@ public class TestSparkStagedScan extends CatalogTestBase {
 
   @TestTemplate
   public void testTaskSetLoading() throws NoSuchTableException, IOException {
-    sql("CREATE TABLE %s (id INT, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, data STRING) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         ImmutableList.of(new SimpleRecord(1, "a"), new SimpleRecord(2, "b"));
@@ -80,7 +80,7 @@ public class TestSparkStagedScan extends CatalogTestBase {
 
   @TestTemplate
   public void testTaskSetPlanning() throws NoSuchTableException, IOException {
-    sql("CREATE TABLE %s (id INT, data STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, data STRING) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         ImmutableList.of(new SimpleRecord(1, "a"), new SimpleRecord(2, "b"));

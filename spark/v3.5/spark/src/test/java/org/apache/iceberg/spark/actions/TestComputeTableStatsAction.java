@@ -78,8 +78,8 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
 
   @TestTemplate
   public void testLoadingTableDirectly() {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
-    sql("INSERT into %s values(1, 'abcd')", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
+    //sql("INSERT into %s values(1, 'abcd')", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -92,7 +92,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
 
   @TestTemplate
   public void testComputeTableStatsAction() throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
     Table table = Spark3Util.loadIcebergTable(spark, tableName);
 
     // To create multiple splits on the mapper
@@ -129,7 +129,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
   @TestTemplate
   public void testComputeTableStatsActionWithoutExplicitColumns()
       throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
 
     List<SimpleRecord> records =
         Lists.newArrayList(
@@ -159,7 +159,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
 
   @TestTemplate
   public void testComputeTableStatsForInvalidColumns() throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
     // Append data to create snapshot
     sql("INSERT into %s values(1, 'abcd')", tableName);
     Table table = Spark3Util.loadIcebergTable(spark, tableName);
@@ -171,7 +171,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
 
   @TestTemplate
   public void testComputeTableStatsWithNoSnapshots() throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
     Table table = Spark3Util.loadIcebergTable(spark, tableName);
     SparkActions actions = SparkActions.get();
     ComputeTableStats.Result result = actions.computeTableStats(table).columns("id").execute();
@@ -180,7 +180,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
 
   @TestTemplate
   public void testComputeTableStatsWithNullValues() throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
     List<SimpleRecord> records =
         Lists.newArrayList(
             new SimpleRecord(1, null),
@@ -213,7 +213,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
   public void testComputeTableStatsWithSnapshotHavingDifferentSchemas()
       throws NoSuchTableException, ParseException {
     SparkActions actions = SparkActions.get();
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
     // Append data to create snapshot
     sql("INSERT into %s values(1, 'abcd')", tableName);
     long snapshotId1 = Spark3Util.loadIcebergTable(spark, tableName).currentSnapshot().snapshotId();
@@ -243,7 +243,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
   @TestTemplate
   public void testComputeTableStatsWhenSnapshotIdNotSpecified()
       throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", tableName);
     // Append data to create snapshot
     sql("INSERT into %s values(1, 'abcd')", tableName);
     Table table = Spark3Util.loadIcebergTable(spark, tableName);
@@ -352,7 +352,7 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
 
   public void testComputeTableStats(String columnName, String type)
       throws NoSuchTableException, ParseException {
-    sql("CREATE TABLE %s (id int, %s %s) USING iceberg", tableName, columnName, type);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, %s %s) USING iceberg", tableName, columnName, type);
     Table table = Spark3Util.loadIcebergTable(spark, tableName);
 
     Dataset<Row> dataDF = randomDataDF(table.schema());
@@ -397,10 +397,5 @@ public class TestComputeTableStatsAction extends CatalogTestBase {
   private void append(String table, Dataset<Row> df) throws NoSuchTableException {
     // fanout writes are enabled as write-time clustering is not supported without Spark extensions
     df.coalesce(1).writeTo(table).option(SparkWriteOptions.FANOUT_ENABLED, "true").append();
-  }
-
-  @AfterEach
-  public void removeTable() {
-    sql("DROP TABLE IF EXISTS %s", tableName);
   }
 }

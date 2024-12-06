@@ -18,6 +18,7 @@
  */
 package org.apache.iceberg.spark.source;
 
+import static org.apache.iceberg.PlanningMode.LOCAL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.apache.iceberg.Parameters;
 import org.apache.iceberg.catalog.Catalog;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.spark.SparkCatalog;
+import org.apache.iceberg.spark.SparkCatalogConfig;
 import org.apache.iceberg.spark.SparkSessionCatalog;
 import org.apache.iceberg.spark.TestBaseWithCatalog;
 import org.apache.spark.sql.connector.catalog.TableCatalog;
@@ -49,7 +51,11 @@ public class TestSparkCatalogCacheExpiration extends TestBaseWithCatalog {
   @Parameters(name = "catalogName = {0}, implementation = {1}, config = {2}")
   public static Object[][] parameters() {
     return new Object[][] {
-      {"spark_catalog", SparkSessionCatalog.class.getName(), SESSION_CATALOG_CONFIG},
+        {
+            SparkCatalogConfig.ICE_CATALOG.catalogName(),
+            SparkCatalogConfig.ICE_CATALOG.implementation(),
+            SparkCatalogConfig.ICE_CATALOG.properties()
+        },
     };
   }
 

@@ -39,7 +39,7 @@ public class TestDropTable extends CatalogTestBase {
 
   @BeforeEach
   public void createTable() {
-    sql("CREATE TABLE %s (id INT, name STRING) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id INT, name STRING) USING iceberg", tableName);
     sql("INSERT INTO %s VALUES (1, 'test')", tableName);
   }
 

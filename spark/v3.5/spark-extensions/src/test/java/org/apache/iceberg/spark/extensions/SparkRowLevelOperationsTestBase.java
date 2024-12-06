@@ -159,7 +159,18 @@ public abstract class SparkRowLevelOperationsTestBase extends ExtensionsTestBase
         false,
         "test",
         DISTRIBUTED
-      }
+      },
+      {
+        "ice_catalog",
+        SparkCatalog.class.getName(),
+        ImmutableMap.of("type", "ice_catalog", "glue.id", "110488619822"),
+        FileFormat.PARQUET,
+        RANDOM.nextBoolean(),
+        WRITE_DISTRIBUTION_MODE_HASH,
+        true,
+        null,
+        LOCAL
+      },
     };
   }
 

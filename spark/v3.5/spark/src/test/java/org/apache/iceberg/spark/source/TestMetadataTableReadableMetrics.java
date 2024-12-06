@@ -84,9 +84,9 @@ public class TestMetadataTableReadableMetrics extends TestBaseWithCatalog {
     return new Object[][] {
       {
         // only SparkCatalog supports metadata table sql queries
-        SparkCatalogConfig.HIVE.catalogName(),
-        SparkCatalogConfig.HIVE.implementation(),
-        SparkCatalogConfig.HIVE.properties()
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties()
       },
     };
   }

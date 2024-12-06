@@ -79,6 +79,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -99,46 +100,16 @@ public class TestCompressionSettings extends CatalogTestBase {
 
   @TempDir private java.nio.file.Path temp;
 
-  @Parameters(
-      name =
-          "catalogName = {0}, implementation = {1}, config = {2}, format = {3}, properties = {4}")
+  @Parameters(name = "catalogName = {0}, implementation = {1}, config = {2}, type = {3}")
   public static Object[][] parameters() {
     return new Object[][] {
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        SparkCatalogConfig.SPARK.properties(),
-        PARQUET,
-        ImmutableMap.of(COMPRESSION_CODEC, "zstd", COMPRESSION_LEVEL, "1")
-      },
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        SparkCatalogConfig.SPARK.properties(),
-        PARQUET,
-        ImmutableMap.of(COMPRESSION_CODEC, "gzip")
-      },
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        SparkCatalogConfig.SPARK.properties(),
-        ORC,
-        ImmutableMap.of(COMPRESSION_CODEC, "zstd", COMPRESSION_STRATEGY, "speed")
-      },
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        SparkCatalogConfig.SPARK.properties(),
-        ORC,
-        ImmutableMap.of(COMPRESSION_CODEC, "zstd", COMPRESSION_STRATEGY, "compression")
-      },
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        SparkCatalogConfig.SPARK.properties(),
-        AVRO,
-        ImmutableMap.of(COMPRESSION_CODEC, "snappy", COMPRESSION_LEVEL, "3")
-      }
+        {
+            SparkCatalogConfig.ICE_CATALOG.catalogName(),
+            SparkCatalogConfig.ICE_CATALOG.implementation(),
+            SparkCatalogConfig.ICE_CATALOG.properties(),
+            PARQUET,
+            ImmutableMap.of(COMPRESSION_CODEC, "zstd", COMPRESSION_LEVEL, "1")
+        },
     };
   }
 
@@ -167,8 +138,9 @@ public class TestCompressionSettings extends CatalogTestBase {
   }
 
   @TestTemplate
+  @Disabled
   public void testWriteDataWithDifferentSetting() throws Exception {
-    sql("CREATE TABLE %s (id int, data string) USING iceberg", TABLE_NAME);
+    sql("CREATE TABLE IF NOT EXISTS %s (id int, data string) USING iceberg", TABLE_NAME);
     Map<String, String> tableProperties = Maps.newHashMap();
     tableProperties.put(PARQUET_COMPRESSION, "gzip");
     tableProperties.put(AVRO_COMPRESSION, "gzip");

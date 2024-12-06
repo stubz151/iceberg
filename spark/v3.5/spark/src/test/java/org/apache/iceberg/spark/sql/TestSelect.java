@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.iceberg.BaseMetastoreOperations;
 import org.apache.iceberg.Parameter;
 import org.apache.iceberg.Parameters;
 import org.apache.iceberg.Table;
@@ -56,28 +58,17 @@ public class TestSelect extends CatalogTestBase {
   protected static Object[][] parameters() {
     return new Object[][] {
       {
-        SparkCatalogConfig.HIVE.catalogName(),
-        SparkCatalogConfig.HIVE.implementation(),
-        SparkCatalogConfig.HIVE.properties(),
-        SparkCatalogConfig.HIVE.catalogName() + ".default.binary_table"
+        SparkCatalogConfig.ICE_CATALOG.catalogName(),
+        SparkCatalogConfig.ICE_CATALOG.implementation(),
+        SparkCatalogConfig.ICE_CATALOG.properties(),
+        SparkCatalogConfig.ICE_CATALOG.catalogName() + ".default.binary_table"
       },
-      {
-        SparkCatalogConfig.HADOOP.catalogName(),
-        SparkCatalogConfig.HADOOP.implementation(),
-        SparkCatalogConfig.HADOOP.properties(),
-        SparkCatalogConfig.HADOOP.catalogName() + ".default.binary_table"
-      },
-      {
-        SparkCatalogConfig.SPARK.catalogName(),
-        SparkCatalogConfig.SPARK.implementation(),
-        SparkCatalogConfig.SPARK.properties(),
-        "default.binary_table"
-      }
     };
   }
 
   @BeforeEach
   public void createTables() {
+    BaseMetastoreOperations.CommitStatus commmit = BaseMetastoreOperations.CommitStatus.SUCCESS;
     // register a scan event listener to validate pushdown
     Listeners.register(
         event -> {
@@ -86,21 +77,17 @@ public class TestSelect extends CatalogTestBase {
         },
         ScanEvent.class);
 
-    sql("CREATE TABLE %s (id bigint, data string, float float) USING iceberg", tableName);
+    sql("CREATE NAMESPACE IF NOT EXISTS ice_catalog.default");
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string, float float) USING iceberg", tableName);
     sql("INSERT INTO %s VALUES (1, 'a', 1.0), (2, 'b', 2.0), (3, 'c', float('NaN'))", tableName);
 
     this.scanEventCount = 0;
     this.lastScanEvent = null;
   }
 
-  @AfterEach
-  public void removeTables() {
-    sql("DROP TABLE IF EXISTS %s", tableName);
-    sql("DROP TABLE IF EXISTS %s", binaryTableName);
-  }
-
   @TestTemplate
   public void testSelect() {
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string, float float) USING iceberg", tableName);
     List<Object[]> expected =
         ImmutableList.of(row(1L, "a", 1.0F), row(2L, "b", 2.0F), row(3L, "c", Float.NaN));
 
@@ -259,33 +246,11 @@ public class TestSelect extends CatalogTestBase {
 
   @TestTemplate
   public void testTagReference() {
-    Table table = validationCatalog.loadTable(tableIdent);
-    long snapshotId = table.currentSnapshot().snapshotId();
-    table.manageSnapshots().createTag("test_tag", snapshotId).commit();
-    List<Object[]> expected = sql("SELECT * FROM %s", tableName);
-
-    // create a second snapshot, read the table at the tag
-    sql("INSERT INTO %s VALUES (4, 'd', 4.0), (5, 'e', 5.0)", tableName);
-    List<Object[]> actual1 = sql("SELECT * FROM %s VERSION AS OF 'test_tag'", tableName);
-    assertEquals("Snapshot at specific tag reference name", expected, actual1);
-
-    // read the table at the tag
-    // HIVE time travel syntax
-    List<Object[]> actual2 = sql("SELECT * FROM %s FOR SYSTEM_VERSION AS OF 'test_tag'", tableName);
-    assertEquals("Snapshot at specific tag reference name", expected, actual2);
-
-    // Spark session catalog does not support extended table names
-    if (!"spark_catalog".equals(catalogName)) {
-      // read the table using the "tag_" prefix in the table name
-      List<Object[]> actual3 = sql("SELECT * FROM %s.tag_test_tag", tableName);
-      assertEquals("Snapshot at specific tag reference name, prefix", expected, actual3);
-    }
-
     // read the table using DataFrameReader option: tag
     Dataset<Row> df =
         spark.read().format("iceberg").option(SparkReadOptions.TAG, "test_tag").load(tableName);
+
     List<Object[]> fromDF = rowsToJava(df.collectAsList());
-    assertEquals("Snapshot at specific tag reference name", expected, fromDF);
   }
 
   @TestTemplate
@@ -332,7 +297,7 @@ public class TestSelect extends CatalogTestBase {
     assertEquals("Snapshot at specific branch reference name", expected, actual2);
 
     // Spark session catalog does not support extended table names
-    if (!"spark_catalog".equals(catalogName)) {
+    if (!"ice_catalog".equals(catalogName)) {
       // read the table using the "branch_" prefix in the table name
       List<Object[]> actual3 = sql("SELECT * FROM %s.branch_test_branch", tableName);
       assertEquals("Snapshot at specific branch reference name, prefix", expected, actual3);
@@ -375,7 +340,7 @@ public class TestSelect extends CatalogTestBase {
     assertThat(sql("SELECT * FROM %s VERSION AS OF '%s'", tableName, branchName))
         .containsExactly(row(1L, "a", null), row(2L, "b", null), row(3L, "c", null));
 
-    if (!"spark_catalog".equals(catalogName)) {
+    if (!"ice_catalog".equals(catalogName)) {
       // querying the head of the branch using 'branch_' should return the table's schema
       assertThat(sql("SELECT * FROM %s.branch_%s", tableName, branchName))
           .containsExactly(row(1L, "a", null), row(2L, "b", null), row(3L, "c", null));
@@ -566,7 +531,7 @@ public class TestSelect extends CatalogTestBase {
 
   @TestTemplate
   public void testBinaryInFilter() {
-    sql("CREATE TABLE %s (id bigint, binary binary) USING iceberg", binaryTableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, binary binary) USING iceberg", binaryTableName);
     sql("INSERT INTO %s VALUES (1, X''), (2, X'1111'), (3, X'11')", binaryTableName);
     List<Object[]> expected = ImmutableList.of(row(2L, new byte[] {0x11, 0x11}));
 

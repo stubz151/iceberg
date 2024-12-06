@@ -82,9 +82,15 @@ abstract class BaseS3File {
       HeadObjectRequest.Builder requestBuilder =
           HeadObjectRequest.builder().bucket(uri().bucket()).key(uri().key());
       S3RequestUtil.configureEncryption(s3FileIOProperties, requestBuilder);
-      metadata = client().headObject(requestBuilder.build());
-    }
+      try {
+        metadata = client().headObject(requestBuilder.build());
+        return metadata;
+      } catch (Exception ex){
+        System.out.println(ex);
+        throw ex;
+      }
 
+    }
     return metadata;
   }
 

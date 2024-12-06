@@ -32,7 +32,7 @@ public class TestRefreshTable extends CatalogTestBase {
 
   @BeforeEach
   public void createTables() {
-    sql("CREATE TABLE %s (key int, value int) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (key int, value int) USING iceberg", tableName);
     sql("INSERT INTO %s VALUES (1,1)", tableName);
   }
 

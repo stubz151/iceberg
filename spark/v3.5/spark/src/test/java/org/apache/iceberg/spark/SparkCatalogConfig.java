@@ -44,10 +44,17 @@ public enum SparkCatalogConfig {
           "cache-enabled",
               "false" // Spark will delete tables using v1, leaving the cache out of sync
           )),
+  ICE_CATALOG(
+      "ice_catalog",
+      SparkCatalog.class.getName(),
+      ImmutableMap.of(
+          "type", "ice_catalog",
+          "ice_catalog.id", "110488619822",
+          "warehouse", "arn:aws:s3tables:us-east-1:098619189221:bucket/test2")),
   SPARK_WITH_VIEWS(
       "spark_with_views",
       SparkCatalog.class.getName(),
-      ImmutableMap.of(
+      Map.of(
           CatalogProperties.CATALOG_IMPL,
           InMemoryCatalog.class.getName(),
           "default-namespace",

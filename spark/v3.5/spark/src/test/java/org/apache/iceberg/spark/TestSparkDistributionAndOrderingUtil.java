@@ -143,7 +143,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultWriteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -152,7 +152,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashWriteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -163,7 +163,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeWriteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -174,7 +174,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultWriteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -193,7 +193,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashWriteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -212,7 +212,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeWriteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -438,7 +438,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultCopyOnWriteDeleteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -448,7 +448,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNoneCopyOnWriteDeleteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -460,7 +460,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashCopyOnWriteDeleteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -472,7 +472,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeCopyOnWriteDeleteUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -485,7 +485,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultCopyOnWriteDeleteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -503,7 +503,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNoneCopyOnWriteDeleteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -523,7 +523,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashCopyOnWriteDeleteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -543,7 +543,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeCopyOnWriteDeleteUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -819,7 +819,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultCopyOnWriteUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -829,7 +829,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNoneCopyOnWriteUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -841,7 +841,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashCopyOnWriteUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -853,7 +853,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeCopyOnWriteUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -866,7 +866,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultCopyOnWriteUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -884,7 +884,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNoneCopyOnWriteUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -904,7 +904,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashCopyOnWriteUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -924,7 +924,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeCopyOnWriteUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1200,7 +1200,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultCopyOnWriteMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1209,7 +1209,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNoneCopyOnWriteMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1220,7 +1220,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashCopyOnWriteMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1231,7 +1231,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeCopyOnWriteMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1242,7 +1242,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultCopyOnWriteMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1261,7 +1261,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNoneCopyOnWriteMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1281,7 +1281,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashCopyOnWriteMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1301,7 +1301,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangeCopyOnWriteMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1575,7 +1575,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultPositionDeltaDeleteUnpartitionedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1595,7 +1595,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNonePositionDeltaDeleteUnpartitionedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1614,7 +1614,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashPositionDeltaDeleteUnpartitionedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1636,7 +1636,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangePositionDeltaDeleteUnpartitionedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1816,7 +1816,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultPositionDeltaUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1836,7 +1836,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNonePositionDeltaUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1855,7 +1855,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashPositionDeltaUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1877,7 +1877,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangePositionDeltaUpdateUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1897,7 +1897,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultPositionDeltaUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1923,7 +1923,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNonePositionDeltaUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1951,7 +1951,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashPositionDeltaUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -1979,7 +1979,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangePositionDeltaUpdateUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2416,7 +2416,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultPositionDeltaMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2440,7 +2440,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNonePositionDeltaMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2459,7 +2459,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashPositionDeltaMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2485,7 +2485,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangePositionDeltaMergeUnpartitionedUnsortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2514,7 +2514,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testDefaultPositionDeltaMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2547,7 +2547,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testNonePositionDeltaMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2575,7 +2575,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testHashPositionDeltaMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
@@ -2610,7 +2610,7 @@ public class TestSparkDistributionAndOrderingUtil extends TestBaseWithCatalog {
 
   @TestTemplate
   public void testRangePositionDeltaMergeUnpartitionedSortedTable() {
-    sql("CREATE TABLE %s (id bigint, data string) USING iceberg", tableName);
+    sql("CREATE TABLE IF NOT EXISTS %s (id bigint, data string) USING iceberg", tableName);
 
     Table table = validationCatalog.loadTable(tableIdent);
 
