@@ -582,12 +582,12 @@ spark-sql --conf spark.sql.catalog.my_catalog=org.apache.iceberg.spark.SparkCata
 
 The Analytics Accelerator Library can work with either the [S3 CRT client](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/crt-based-s3-client.html) or the [S3AsyncClient](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/services/s3/S3AsyncClient.html). The library recommends that you use the S3 CRT client due to its enhanced connection pool management and [higher throughput on downloads](https://aws.amazon.com/blogs/developer/introducing-crt-based-s3-client-and-the-s3-transfer-manager-in-the-aws-sdk-for-java-2-x/).
 
-##### Client Configuration
+#### Client Configuration
 
 | Property               | Default | Description                                                  |
 |------------------------|---------|--------------------------------------------------------------|
 | s3.crt.enabled         | `true`  | Controls if the S3 Async clients should be created using CRT |
-| s3.crt.max-concurrency | `500`   | Max concurrency for S3 CRT Async clients                     |
+| s3.crt.max-concurrency | `500`   | Max concurrency for S3 CRT clients                           |
 
 Additional library specific configurations are organized into the following sections:
 
