@@ -118,7 +118,10 @@ public class TestS3FileIO {
   @Container private static final MinIOContainer MINIO = MinioUtil.createContainer();
 
   private final SerializableSupplier<S3Client> s3 = () -> MinioUtil.createS3Client(MINIO);
+  private final SerializableSupplier<S3AsyncClient> s3Async =
+      () -> MinioUtil.createS3AsyncClient(MINIO);
   private final S3Client s3mock = mock(S3Client.class, delegatesTo(s3.get()));
+  private final S3AsyncClient s3Asyncmock = mock(S3AsyncClient.class, delegatesTo(s3Async.get()));
   private final Random random = new Random(1);
   private final int numBucketsForBatchDeletion = 3;
   private final String batchDeletionBucketPrefix = "batch-delete-";
@@ -137,13 +140,14 @@ public class TestS3FileIO {
 
   @BeforeEach
   public void before() {
-    s3FileIO = new S3FileIO(() -> s3mock);
+    s3FileIO = new S3FileIO(() -> s3mock, () -> s3Asyncmock);
     s3FileIO.initialize(properties);
     createBucket(S3_GENERAL_PURPOSE_BUCKET);
     for (int i = 1; i <= numBucketsForBatchDeletion; i++) {
       createBucket(batchDeletionBucketPrefix + i);
     }
     StaticClientFactory.client = s3mock;
+    StaticClientFactory.asyncClient = s3Asyncmock;
   }
 
   @AfterEach

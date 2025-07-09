@@ -22,13 +22,16 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import java.io.IOException;
+import org.apache.iceberg.exceptions.NotFoundException;
 import org.apache.iceberg.exceptions.RuntimeIOException;
 import org.apache.iceberg.io.SeekableInputStream;
+import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.s3.analyticsaccelerator.ObjectClientConfiguration;
 import software.amazon.s3.analyticsaccelerator.S3SdkObjectClient;
 import software.amazon.s3.analyticsaccelerator.S3SeekableInputStream;
@@ -58,7 +61,13 @@ class AnalyticsAcceleratorUtil {
 
   public static SeekableInputStream newStream(S3InputFile inputFile) {
     S3URI uri = S3URI.of(inputFile.uri().bucket(), inputFile.uri().key());
-    HeadObjectResponse metadata = inputFile.getObjectMetadata();
+    HeadObjectResponse metadata;
+    try {
+      metadata = inputFile.getObjectMetadata();
+    } catch (NoSuchKeyException e) {
+      throw new NotFoundException(e, "Location does not exist: %s", inputFile.location());
+    }
+
     OpenStreamInformation openStreamInfo =
         OpenStreamInformation.builder()
             .objectMetadata(
@@ -84,6 +93,7 @@ class AnalyticsAcceleratorUtil {
 
   private static S3SeekableInputStreamFactory createNewFactory(
       Pair<S3AsyncClient, S3FileIOProperties> cacheKey) {
+    Preconditions.checkArgument(cacheKey != null, "cacheKey can't be null");
     ConnectorConfiguration connectorConfiguration =
         new ConnectorConfiguration(cacheKey.second().s3AnalyticsacceleratorProperties());
     S3SeekableInputStreamConfiguration streamConfiguration =
