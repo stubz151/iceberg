@@ -286,7 +286,7 @@ public class TestS3FileIOIntegration {
   @MethodSource("org.apache.iceberg.aws.s3.S3TestUtil#analyticsAcceleratorLibraryProperties")
   public void testNewInputStreamWithMultiRegionAccessPoint(Map<String, String> aalProperties)
       throws Exception {
-    Assumptions.assumeThat(multiRegionAccessPointAlias).isNotEmpty();
+    assumeThat(multiRegionAccessPointAlias).isNotEmpty();
     Map<String, String> testProperties =
         ImmutableMap.of(S3FileIOProperties.USE_ARN_REGION_ENABLED, "true");
     clientFactory.initialize(mergeProperties(aalProperties, testProperties));
