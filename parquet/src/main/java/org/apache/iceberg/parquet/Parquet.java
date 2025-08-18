@@ -1327,7 +1327,7 @@ public class Parquet {
         } else {
           optionsBuilder = ParquetReadOptions.builder(new PlainParquetConfiguration());
         }
-
+        optionsBuilder.withUseHadoopVectoredIo(true);
         for (Map.Entry<String, String> entry : properties.entrySet()) {
           optionsBuilder.set(entry.getKey(), entry.getValue());
         }

@@ -36,9 +36,12 @@ class AnalyticsAcceleratorInputStreamWrapper extends SeekableInputStream {
       LoggerFactory.getLogger(AnalyticsAcceleratorInputStreamWrapper.class);
 
   private final S3SeekableInputStream delegate;
+  private final Boolean isReadVectorEnabled;
 
-  AnalyticsAcceleratorInputStreamWrapper(S3SeekableInputStream stream) {
+  AnalyticsAcceleratorInputStreamWrapper(
+      S3SeekableInputStream stream, Boolean isReadVectorEnabled) {
     this.delegate = stream;
+    this.isReadVectorEnabled = isReadVectorEnabled;
   }
 
   @Override
@@ -93,6 +96,6 @@ class AnalyticsAcceleratorInputStreamWrapper extends SeekableInputStream {
 
   @Override
   public boolean readVectoredAvailable(IntFunction<ByteBuffer> allocate) {
-    return true;
+    return isReadVectorEnabled;
   }
 }

@@ -85,6 +85,11 @@ public class S3FileIOProperties implements Serializable {
 
   public static final boolean S3_ANALYTICS_ACCELERATOR_ENABLED_DEFAULT = false;
 
+  public static final String S3_ANALYTICS_ACCELERATOR_VECTOR_ENABLED =
+      "s3.analytics-accelerator.vector.enabled";
+
+  public static final boolean S3_ANALYTICS_ACCELERATOR_VECTOR_ENABLED_DEFAULT = false;
+
   /**
    * This prefix allows users to configure the internal properties of the s3 analytics accelerator.
    *
@@ -525,6 +530,7 @@ public class S3FileIOProperties implements Serializable {
   private final String endpoint;
   private final boolean isRemoteSigningEnabled;
   private final boolean isS3AnalyticsAcceleratorEnabled;
+  private final boolean isS3AnalyticsAcceleratorVectorEnabled;
   private final Map<String, String> s3AnalyticsacceleratorProperties;
   private final boolean isS3CRTEnabled;
   private final int s3CrtMaxConcurrency;
@@ -573,6 +579,7 @@ public class S3FileIOProperties implements Serializable {
     this.s3DirectoryBucketListPrefixAsDirectory =
         S3_DIRECTORY_BUCKET_LIST_PREFIX_AS_DIRECTORY_DEFAULT;
     this.isS3AnalyticsAcceleratorEnabled = S3_ANALYTICS_ACCELERATOR_ENABLED_DEFAULT;
+    this.isS3AnalyticsAcceleratorVectorEnabled = S3_ANALYTICS_ACCELERATOR_VECTOR_ENABLED_DEFAULT;
     this.s3AnalyticsacceleratorProperties = Maps.newHashMap();
     this.isS3CRTEnabled = S3_CRT_ENABLED_DEFAULT;
     this.s3CrtMaxConcurrency = S3_CRT_MAX_CONCURRENCY_DEFAULT;
@@ -691,6 +698,11 @@ public class S3FileIOProperties implements Serializable {
     this.isS3AnalyticsAcceleratorEnabled =
         PropertyUtil.propertyAsBoolean(
             properties, S3_ANALYTICS_ACCELERATOR_ENABLED, S3_ANALYTICS_ACCELERATOR_ENABLED_DEFAULT);
+    this.isS3AnalyticsAcceleratorVectorEnabled =
+        PropertyUtil.propertyAsBoolean(
+            properties,
+            S3_ANALYTICS_ACCELERATOR_VECTOR_ENABLED,
+            S3_ANALYTICS_ACCELERATOR_VECTOR_ENABLED_DEFAULT);
     this.s3AnalyticsacceleratorProperties =
         PropertyUtil.propertiesWithPrefix(properties, S3_ANALYTICS_ACCELERATOR_PROPERTIES_PREFIX);
     this.isS3CRTEnabled =
@@ -814,6 +826,10 @@ public class S3FileIOProperties implements Serializable {
 
   public boolean isS3AnalyticsAcceleratorEnabled() {
     return isS3AnalyticsAcceleratorEnabled;
+  }
+
+  public boolean isS3AnalyticsAcceleratorVectorEnabled() {
+    return isS3AnalyticsAcceleratorVectorEnabled;
   }
 
   public Map<String, String> s3AnalyticsacceleratorProperties() {
