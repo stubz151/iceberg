@@ -26,6 +26,4 @@ public interface ParquetBatchReadConf extends Serializable {
   int batchSize();
 
   ParquetReaderType readerType();
-
-  boolean shouldUseHadoopReadVectored();
 }

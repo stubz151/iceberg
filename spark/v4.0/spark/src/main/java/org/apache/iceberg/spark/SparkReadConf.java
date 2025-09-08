@@ -180,15 +180,6 @@ public class SparkReadConf {
         .parse();
   }
 
-  public boolean parquetReadVectorEnabled() {
-    return confParser
-        .booleanConf()
-        .option(SparkReadOptions.READ_VECTOR_ENABLED)
-        .sessionConf(SparkSQLProperties.READ_VECTOR_ENABLED)
-        .defaultValue(SparkReadOptions.READ_VECTOR_ENABLED_DEFAULT)
-        .parse();
-  }
-
   public int orcBatchSize() {
     return confParser
         .intConf()

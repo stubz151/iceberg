@@ -21,12 +21,12 @@ package org.apache.iceberg.io;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
-public class ParquetObjectRange {
+public class ObjectRange {
   private final CompletableFuture<ByteBuffer> byteBuffer;
   private final long offset;
   private final int length;
 
-  public ParquetObjectRange(CompletableFuture<ByteBuffer> byteBuffer, long offset, int length) {
+  public ObjectRange(CompletableFuture<ByteBuffer> byteBuffer, long offset, int length) {
     this.byteBuffer = byteBuffer;
     this.offset = offset;
     this.length = length;

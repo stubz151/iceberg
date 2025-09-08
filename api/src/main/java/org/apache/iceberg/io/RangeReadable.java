@@ -108,7 +108,7 @@ public interface RangeReadable extends Closeable {
    * @throws IOException any IOE.
    * @throws IllegalArgumentException if the any of ranges are invalid, or they overlap.
    */
-  default void readVectored(List<ParquetObjectRange> ranges, IntFunction<ByteBuffer> allocate)
+  default void readVectored(List<ObjectRange> ranges, IntFunction<ByteBuffer> allocate)
       throws IOException {
     throw new UnsupportedOperationException(
         "Default Range Readable stream doesn't support read vectored");

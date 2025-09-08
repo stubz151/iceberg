@@ -33,7 +33,7 @@ import org.apache.iceberg.hadoop.HadoopInputFile;
 import org.apache.iceberg.hadoop.HadoopOutputFile;
 import org.apache.iceberg.io.DelegatingInputStream;
 import org.apache.iceberg.io.DelegatingOutputStream;
-import org.apache.iceberg.io.ParquetObjectRange;
+import org.apache.iceberg.io.ObjectRange;
 import org.apache.iceberg.io.RangeReadable;
 import org.apache.parquet.bytes.ByteBufferAllocator;
 import org.apache.parquet.hadoop.util.HadoopStreams;
@@ -173,15 +173,15 @@ class ParquetIO {
     public void readVectored(List<ParquetFileRange> ranges, ByteBufferAllocator allocate)
         throws IOException {
       IntFunction<ByteBuffer> delegateAllocate = (allocate::allocate);
-      List<ParquetObjectRange> delegateRange = convertRanges(ranges);
+      List<ObjectRange> delegateRange = convertRanges(ranges);
       delegate.readVectored(delegateRange, delegateAllocate);
     }
 
-    private static List<ParquetObjectRange> convertRanges(List<ParquetFileRange> ranges) {
+    private static List<ObjectRange> convertRanges(List<ParquetFileRange> ranges) {
       return ranges.stream()
           .map(
               parquetFileRange ->
-                  new ParquetObjectRange(
+                  new ObjectRange(
                       parquetFileRange.getDataReadFuture(),
                       parquetFileRange.getOffset(),
                       parquetFileRange.getLength()))
